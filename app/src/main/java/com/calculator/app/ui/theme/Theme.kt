@@ -19,7 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun CalculatorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = true,
+    oledBlack: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -31,8 +32,24 @@ fun CalculatorTheme(
         else -> LightColorScheme
     }
 
+    val finalColorScheme = if (oledBlack && darkTheme) {
+        colorScheme.copy(
+            background = Color.Black,
+            surface = Color.Black,
+            surfaceDim = Color.Black,
+            surfaceBright = Color(0xFF0A0A0A),
+            surfaceContainerLowest = Color.Black,
+            surfaceContainerLow = Color(0xFF050505),
+            surfaceContainer = Color(0xFF0A0A0A),
+            surfaceContainerHigh = Color(0xFF1A1A1A),
+            surfaceContainerHighest = Color(0xFF2A2A2A),
+        )
+    } else {
+        colorScheme
+    }
+
     MaterialExpressiveTheme(
-        colorScheme = colorScheme.animated(),
+        colorScheme = finalColorScheme.animated(),
         typography = CalculatorTypography,
         motionScheme = MotionScheme.expressive(),
         shapes = Shapes(),

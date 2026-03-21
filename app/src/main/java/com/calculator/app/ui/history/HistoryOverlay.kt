@@ -4,7 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,17 +12,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -33,18 +35,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.calculator.app.domain.model.HistoryItem
+import com.calculator.app.ui.theme.segmentedItemShape
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryBottomSheet(
     historyItems: List<HistoryItem>,
     onDismiss: () -> Unit,
-    onExpressionClick: (String) -> Unit,
-    onResultClick: (String) -> Unit,
+    onItemClick: (String) -> Unit,
     onClearAll: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
@@ -53,25 +59,16 @@ fun HistoryBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "History",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-
-                HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+                Text(
+                    text = "History",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                )
 
                 if (historyItems.isEmpty()) {
                     Box(
@@ -89,28 +86,33 @@ fun HistoryBottomSheet(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
                     ) {
-                        items(historyItems, key = { it.id }) { item ->
+                        itemsIndexed(
+                            items = historyItems,
+                            key = { _, item -> item.id },
+                        ) { index, item ->
                             HistoryListItem(
                                 item = item,
-                                onExpressionClick = {
-                                    onExpressionClick(item.expression)
+                                index = index,
+                                total = historyItems.size,
+                                onClick = {
+                                    onItemClick(item.expression)
                                     onDismiss()
                                 },
-                                onResultClick = {
-                                    onResultClick(item.result)
-                                    onDismiss()
-                                },
-                                modifier = Modifier.animateItem(),
+                                modifier = Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                                ),
                             )
                         }
-                        // Bottom spacer for FAB clearance
-                        item { Spacer(Modifier.height(88.dp)) }
+                        item { Spacer(Modifier.height(96.dp)) }
                     }
                 }
             }
 
-            // FAB for clearing history
             if (historyItems.isNotEmpty()) {
                 FloatingActionButton(
                     onClick = { showClearDialog = true },
@@ -123,6 +125,7 @@ fun HistoryBottomSheet(
                     Icon(
                         imageVector = Icons.Default.DeleteForever,
                         contentDescription = "Clear all history",
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             }
@@ -143,13 +146,23 @@ fun HistoryBottomSheet(
 @Composable
 private fun HistoryListItem(
     item: HistoryItem,
-    onExpressionClick: () -> Unit,
-    onResultClick: () -> Unit,
+    index: Int,
+    total: Int,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        // Expression - tappable
+    Surface(
+        shape = segmentedItemShape(index, total),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier,
+    ) {
         ListItem(
+            overlineContent = {
+                Text(
+                    text = formatTimestamp(item.timestamp),
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            },
             headlineContent = {
                 Text(
                     text = item.expression,
@@ -169,15 +182,18 @@ private fun HistoryListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onResultClick),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             },
-            modifier = Modifier.clickable(onClick = onExpressionClick),
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            modifier = Modifier.clickable(onClick = onClick),
         )
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
     }
+}
+
+private fun formatTimestamp(timestamp: Long): String {
+    val sdf = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }
 
 @Composable
@@ -212,11 +228,11 @@ private fun ClearHistoryDialog(
 /**
  * Persistent history panel for tablet expanded layout.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryPanel(
     historyItems: List<HistoryItem>,
-    onExpressionClick: (String) -> Unit,
-    onResultClick: (String) -> Unit,
+    onItemClick: (String) -> Unit,
     onClearAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -224,21 +240,12 @@ fun HistoryPanel(
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "History",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-
-            HorizontalDivider()
+            Text(
+                text = "History",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            )
 
             if (historyItems.isEmpty()) {
                 Box(
@@ -258,16 +265,26 @@ fun HistoryPanel(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(1.dp),
                 ) {
-                    items(historyItems, key = { it.id }) { item ->
+                    itemsIndexed(
+                        items = historyItems,
+                        key = { _, item -> item.id },
+                    ) { index, item ->
                         HistoryListItem(
                             item = item,
-                            onExpressionClick = { onExpressionClick(item.expression) },
-                            onResultClick = { onResultClick(item.result) },
-                            modifier = Modifier.animateItem(),
+                            index = index,
+                            total = historyItems.size,
+                            onClick = { onItemClick(item.expression) },
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                            ),
                         )
                     }
-                    item { Spacer(Modifier.height(88.dp)) }
+                    item { Spacer(Modifier.height(96.dp)) }
                 }
             }
         }
@@ -284,6 +301,7 @@ fun HistoryPanel(
                 Icon(
                     imageVector = Icons.Default.DeleteForever,
                     contentDescription = "Clear all history",
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }

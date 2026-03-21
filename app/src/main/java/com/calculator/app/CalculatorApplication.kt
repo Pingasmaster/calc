@@ -3,10 +3,14 @@ package com.calculator.app
 import android.app.Application
 import androidx.room.Room
 import com.calculator.app.data.local.db.CalculatorDatabase
+import com.calculator.app.data.local.preferences.UserPreferences
 
 class CalculatorApplication : Application() {
 
     lateinit var database: CalculatorDatabase
+        private set
+
+    lateinit var userPreferences: UserPreferences
         private set
 
     override fun onCreate() {
@@ -16,5 +20,6 @@ class CalculatorApplication : Application() {
             CalculatorDatabase::class.java,
             "calculator.db",
         ).build()
+        userPreferences = UserPreferences(this)
     }
 }

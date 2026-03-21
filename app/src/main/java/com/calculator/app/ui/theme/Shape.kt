@@ -18,3 +18,18 @@ object CalculatorShapes {
     val HistoryCard: Shape = RoundedCornerShape(16.dp)
     val HistoryOverlay: Shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
 }
+
+/**
+ * Shape for segmented list items — first item has large top corners,
+ * last item has large bottom corners, middle items have small corners.
+ */
+fun segmentedItemShape(index: Int, count: Int): RoundedCornerShape {
+    val large = 28.dp
+    val small = 4.dp
+    return when {
+        count == 1 -> RoundedCornerShape(large)
+        index == 0 -> RoundedCornerShape(topStart = large, topEnd = large, bottomStart = small, bottomEnd = small)
+        index == count - 1 -> RoundedCornerShape(topStart = small, topEnd = small, bottomStart = large, bottomEnd = large)
+        else -> RoundedCornerShape(small)
+    }
+}

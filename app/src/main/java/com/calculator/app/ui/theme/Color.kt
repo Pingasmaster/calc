@@ -156,6 +156,8 @@ val FunctionButtonColor = Color(0xFFBEA8DE)
 val FunctionButtonContentColor = Color(0xFF1D1625)
 val ACButtonColor = Color(0xFFD5D0DA)             // grey for AC
 val ACButtonContentColor = Color(0xFF1D1625)
+val DisplayBackground = Color(0xFFFFFFFF)
+val DisplayBackgroundDark = Color(0xFF1D1625)
 val ScientificTextColor = Color(0xFF4A3D5C)
 val BackspaceIconColor = Color(0xFF3D2E52)
 

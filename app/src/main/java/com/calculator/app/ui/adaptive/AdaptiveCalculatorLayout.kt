@@ -5,12 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
@@ -19,16 +14,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.window.core.layout.WindowSizeClass
+import com.calculator.app.CalculatorApplication
+import com.calculator.app.data.local.preferences.ThemeMode
 import com.calculator.app.ui.calculator.CalculatorScreen
 import com.calculator.app.ui.calculator.CalculatorViewModel
 import com.calculator.app.ui.history.HistoryBottomSheet
 import com.calculator.app.ui.history.HistoryPanel
+import com.calculator.app.ui.settings.SettingsSheet
+import kotlinx.coroutines.launch
 
 @Composable
 fun AdaptiveCalculatorLayout(
@@ -38,96 +37,78 @@ fun AdaptiveCalculatorLayout(
     val historyItems by viewModel.history.collectAsState()
     val windowSizeClass = windowAdaptiveInfo.windowSizeClass
 
+    val context = LocalContext.current
+    val prefs = (context.applicationContext as CalculatorApplication).userPreferences
+    val themeMode by prefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+    val dynamicColor by prefs.dynamicColorEnabled.collectAsState(initial = true)
+    val oledBlack by prefs.oledBlackEnabled.collectAsState(initial = false)
+    val scope = rememberCoroutineScope()
+
+    var showHistory by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
+
     when {
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
-            ExpandedLayout(
-                viewModel = viewModel,
-                historyItems = historyItems,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .systemBarsPadding(),
+            ) {
+                HistoryPanel(
+                    historyItems = historyItems,
+                    onItemClick = { viewModel.loadFromHistory(it) },
+                    onClearAll = { viewModel.clearHistory() },
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                )
+
+                VerticalDivider()
+
+                CalculatorScreen(
+                    viewModel = viewModel,
+                    onSettingsClick = { showSettings = true },
+                    modifier = Modifier
+                        .weight(2f)
+                        .fillMaxHeight(),
+                )
+            }
         }
         else -> {
-            CompactLayout(
-                viewModel = viewModel,
-                historyItems = historyItems,
-            )
-        }
-    }
-}
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding(),
+            ) {
+                CalculatorScreen(
+                    viewModel = viewModel,
+                    onDisplayClick = { showHistory = true },
+                    onSettingsClick = { showSettings = true },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
 
-@Composable
-private fun CompactLayout(
-    viewModel: CalculatorViewModel,
-    historyItems: List<com.calculator.app.domain.model.HistoryItem>,
-) {
-    var showHistory by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
-    ) {
-        CalculatorScreen(
-            viewModel = viewModel,
-            modifier = Modifier.fillMaxSize(),
-        )
-
-        // History button in top-right corner
-        IconButton(
-            onClick = { showHistory = true },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 8.dp, top = 4.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.History,
-                contentDescription = "History",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (showHistory) {
+                HistoryBottomSheet(
+                    historyItems = historyItems,
+                    onDismiss = { showHistory = false },
+                    onItemClick = { viewModel.loadFromHistory(it) },
+                    onClearAll = { viewModel.clearHistory() },
+                )
+            }
         }
     }
 
-    // Native M3 ModalBottomSheet for history
-    if (showHistory) {
-        HistoryBottomSheet(
-            historyItems = historyItems,
-            onDismiss = { showHistory = false },
-            onExpressionClick = { viewModel.loadFromHistory(it) },
-            onResultClick = { viewModel.loadFromHistory(it) },
-            onClearAll = { viewModel.clearHistory() },
-        )
-    }
-}
-
-@Composable
-private fun ExpandedLayout(
-    viewModel: CalculatorViewModel,
-    historyItems: List<com.calculator.app.domain.model.HistoryItem>,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .systemBarsPadding(),
-    ) {
-        // History panel on the left (1/3)
-        HistoryPanel(
-            historyItems = historyItems,
-            onExpressionClick = { viewModel.loadFromHistory(it) },
-            onResultClick = { viewModel.loadFromHistory(it) },
-            onClearAll = { viewModel.clearHistory() },
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-        )
-
-        VerticalDivider()
-
-        // Calculator on the right (2/3)
-        CalculatorScreen(
-            viewModel = viewModel,
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight(),
+    if (showSettings) {
+        SettingsSheet(
+            themeMode = themeMode,
+            dynamicColor = dynamicColor,
+            oledBlack = oledBlack,
+            onThemeModeChange = { scope.launch { prefs.setThemeMode(it) } },
+            onDynamicColorChange = { scope.launch { prefs.setDynamicColor(it) } },
+            onOledBlackChange = { scope.launch { prefs.setOledBlack(it) } },
+            onDismiss = { showSettings = false },
         )
     }
 }
