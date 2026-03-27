@@ -33,7 +33,11 @@ object Tokenizer {
 
                 c.isDigit() || (c == '.' && i + 1 < expr.length && expr[i + 1].isDigit()) -> {
                     val start = i
-                    while (i < expr.length && (expr[i].isDigit() || expr[i] == '.')) i++
+                    var hasDecimal = false
+                    while (i < expr.length && (expr[i].isDigit() || (expr[i] == '.' && !hasDecimal))) {
+                        if (expr[i] == '.') hasDecimal = true
+                        i++
+                    }
                     val numStr = expr.substring(start, i)
                     // Insert implicit multiplication if preceded by a closing paren, constant, or number
                     if (tokens.isNotEmpty() && needsImplicitMultiply(tokens.last())) {

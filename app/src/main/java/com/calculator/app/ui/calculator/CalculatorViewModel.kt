@@ -51,6 +51,13 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
                 // Start fresh expression with the digit
                 CalculatorState(expression = digit, displayText = digit)
             } else {
+                // Prevent decimal after constants or postfix operators
+                if (digit == ".") {
+                    val lastChar = current.expression.lastOrNull()
+                    if (lastChar == 'π' || lastChar == 'e' || lastChar == '%' || lastChar == '!') return@update current
+                    val currentNumber = current.expression.takeLastWhile { it.isDigit() || it == '.' }
+                    if ('.' in currentNumber) return@update current
+                }
                 val newExpr = current.expression + digit
                 current.copy(
                     expression = newExpr,
@@ -64,6 +71,8 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun appendOperator(op: String) {
         _state.update { current ->
+            if (current.isError) return@update CalculatorState()
+
             val expr = if (current.isResultDisplayed) {
                 // Continue from result
                 current.displayText
@@ -126,10 +135,9 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun appendToExpression(symbol: String) {
         _state.update { current ->
-            if (current.isResultDisplayed && symbol == "%") {
-                val newExpr = current.displayText + symbol
-                CalculatorState(expression = newExpr, displayText = newExpr)
-            } else if (current.isResultDisplayed) {
+            if (current.isError) return@update CalculatorState()
+
+            if (current.isResultDisplayed) {
                 val newExpr = current.displayText + symbol
                 CalculatorState(expression = newExpr, displayText = newExpr)
             } else {
@@ -158,8 +166,8 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
                 (expr + ")") to (current.openParenCount - 1)
             } else {
                 // Add implicit multiplication if needed
-                val prefix = if (expr.isNotEmpty() && (expr.last().isDigit() || expr.last() == ')' || expr.last() == 'π' || expr.last() == 'e')) {
-                    expr
+                val prefix = if (expr.isNotEmpty() && (expr.last().isDigit() || expr.last() == ')' || expr.last() == 'π' || expr.last() == 'e' || expr.last() == '%' || expr.last() == '!')) {
+                    expr + "×"
                 } else {
                     expr
                 }
@@ -190,7 +198,7 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
             onSuccess = { result ->
                 _state.update {
                     it.copy(
-                        expression = expr,
+                        expression = closedExpr,
                         displayText = result,
                         previewResult = "",
                         isResultDisplayed = true,
@@ -198,7 +206,7 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
                         openParenCount = 0,
                     )
                 }
-                viewModelScope.launch { historyRepo.addEntry(expr, result) }
+                viewModelScope.launch { historyRepo.addEntry(closedExpr, result) }
             },
             onFailure = {
                 _state.update {
@@ -206,6 +214,8 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
                         displayText = "Error",
                         previewResult = "",
                         isError = true,
+                        isResultDisplayed = true,
+                        openParenCount = 0,
                     )
                 }
             },
@@ -225,12 +235,17 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
             if (current.expression.isEmpty()) return@update current
 
             val removed = current.expression.last()
-            val newExpr = current.expression.dropLast(1)
+            var newExpr = current.expression.dropLast(1)
 
-            val newParenCount = when (removed) {
+            var newParenCount = when (removed) {
                 '(' -> current.openParenCount - 1
                 ')' -> current.openParenCount + 1
                 else -> current.openParenCount
+            }
+
+            // Remove lone √ left behind when deleting the ( from √(
+            if (removed == '(' && newExpr.endsWith("√")) {
+                newExpr = newExpr.dropLast(1)
             }
 
             current.copy(
@@ -272,10 +287,12 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun loadFromHistory(value: String) {
+        val parenCount = (value.count { it == '(' } - value.count { it == ')' }).coerceAtLeast(0)
         _state.update {
             CalculatorState(
                 expression = value,
                 displayText = value,
+                openParenCount = parenCount,
             )
         }
         updatePreview()
