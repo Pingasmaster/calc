@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.map
 
 class HistoryRepository(private val historyDao: HistoryDao) {
 
+    companion object {
+        private const val MAX_HISTORY_ENTRIES = 100
+    }
+
     fun observeHistory(): Flow<List<HistoryItem>> =
         historyDao.observeAll().map { entities ->
             entities.map { it.toDomain() }
@@ -15,7 +19,7 @@ class HistoryRepository(private val historyDao: HistoryDao) {
 
     suspend fun addEntry(expression: String, result: String) {
         historyDao.insert(HistoryEntity(expression = expression, result = result))
-        historyDao.trimToSize(100)
+        historyDao.trimToSize(MAX_HISTORY_ENTRIES)
     }
 
     suspend fun clearHistory() = historyDao.clearAll()

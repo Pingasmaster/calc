@@ -24,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.calculator.app.R
 import com.calculator.app.data.local.preferences.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +52,7 @@ fun SettingsSheet(
                 .padding(bottom = 32.dp),
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -59,7 +61,7 @@ fun SettingsSheet(
 
             // Theme mode segmented button
             Text(
-                text = "Theme",
+                text = stringResource(R.string.settings_theme_label),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -81,9 +83,9 @@ fun SettingsSheet(
                     ) {
                         Text(
                             text = when (mode) {
-                                ThemeMode.SYSTEM -> "System"
-                                ThemeMode.LIGHT -> "Light"
-                                ThemeMode.DARK -> "Dark"
+                                ThemeMode.SYSTEM -> stringResource(R.string.settings_theme_system)
+                                ThemeMode.LIGHT -> stringResource(R.string.settings_theme_light)
+                                ThemeMode.DARK -> stringResource(R.string.settings_theme_dark)
                             },
                         )
                     }
@@ -99,18 +101,18 @@ fun SettingsSheet(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Palette,
-                    contentDescription = "Dynamic color",
+                    contentDescription = stringResource(R.string.settings_dynamic_color),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Dynamic color",
+                        text = stringResource(R.string.settings_dynamic_color),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "Follow system wallpaper colors",
+                        text = stringResource(R.string.settings_dynamic_color_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -130,18 +132,18 @@ fun SettingsSheet(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.DarkMode,
-                    contentDescription = "OLED dark theme",
+                    contentDescription = stringResource(R.string.settings_oled_dark),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "OLED dark theme",
+                        text = stringResource(R.string.settings_oled_dark),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "Pure black background in dark mode",
+                        text = stringResource(R.string.settings_oled_dark_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

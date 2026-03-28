@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">Calc</string>
+
+    <!-- Settings -->
+    <string name="settings_icon">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_label">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_dynamic_color">Dynamic color</string>
+    <string name="settings_dynamic_color_description">Follow system wallpaper colors</string>
+    <string name="settings_oled_dark">OLED dark theme</string>
+    <string name="settings_oled_dark_description">Pure black background in dark mode</string>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_empty">No history yet</string>
+    <string name="history_clear_all">Clear all history</string>
+    <string name="history_clear_dialog_title">Clear history?</string>
+    <string name="history_clear_dialog_message">This will permanently delete all calculation history.</string>
+    <string name="history_clear_dialog_confirm">Delete</string>
+    <string name="history_clear_dialog_cancel">Cancel</string>
+    <string name="history_delete_icon">Delete</string>
+
+    <!-- Display -->
+    <string name="display_preview_prefix">= %1$s</string>
+    <string name="display_result_prefix">= %1$s</string>
 </resources>

@@ -12,8 +12,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 28
-        versionName = "1.0.27"
+        versionCode = 31
+        versionName = "1.0.30"
     }
 
     signingConfigs {
@@ -107,4 +107,8 @@ dependencies {
 
     // Desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }

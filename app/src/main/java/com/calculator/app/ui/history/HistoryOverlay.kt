@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.calculator.app.R
 import com.calculator.app.domain.model.HistoryItem
 import com.calculator.app.ui.theme.segmentedItemShape
 import java.text.SimpleDateFormat
@@ -64,7 +66,7 @@ fun HistoryBottomSheet(
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "History",
+                    text = stringResource(R.string.history_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
@@ -78,7 +80,7 @@ fun HistoryBottomSheet(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "No history yet",
+                            text = stringResource(R.string.history_empty),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -124,7 +126,7 @@ fun HistoryBottomSheet(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteForever,
-                        contentDescription = "Clear all history",
+                        contentDescription = stringResource(R.string.history_clear_all),
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -176,7 +178,7 @@ private fun HistoryListItem(
             },
             supportingContent = {
                 Text(
-                    text = "= ${item.result}",
+                    text = stringResource(R.string.display_result_prefix, item.result),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
@@ -206,20 +208,20 @@ private fun ClearHistoryDialog(
         icon = {
             Icon(
                 imageVector = Icons.Default.DeleteForever,
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.history_delete_icon),
                 modifier = Modifier.size(24.dp),
             )
         },
-        title = { Text("Clear history?") },
-        text = { Text("This will permanently delete all calculation history.") },
+        title = { Text(stringResource(R.string.history_clear_dialog_title)) },
+        text = { Text(stringResource(R.string.history_clear_dialog_message)) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.history_clear_dialog_confirm), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.history_clear_dialog_cancel))
             }
         },
     )
@@ -241,7 +243,7 @@ fun HistoryPanel(
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = "History",
+                text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
@@ -255,7 +257,7 @@ fun HistoryPanel(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "No history yet",
+                        text = stringResource(R.string.history_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -300,7 +302,7 @@ fun HistoryPanel(
             ) {
                 Icon(
                     imageVector = Icons.Default.DeleteForever,
-                    contentDescription = "Clear all history",
+                    contentDescription = stringResource(R.string.history_clear_all),
                     modifier = Modifier.size(24.dp),
                 )
             }

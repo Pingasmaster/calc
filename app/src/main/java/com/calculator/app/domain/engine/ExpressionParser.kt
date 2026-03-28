@@ -6,7 +6,9 @@ import java.math.RoundingMode
 
 object ExpressionParser {
 
-    private val MC = MathContext(15, RoundingMode.HALF_UP)
+    private const val PRECISION_DIGITS = 15
+    private const val MAX_FACTORIAL_INPUT = 170 // 171! exceeds Double.MAX_VALUE
+    private val MC = MathContext(PRECISION_DIGITS, RoundingMode.HALF_UP)
 
     fun toPostfix(tokens: List<Token>): List<Token> {
         val output = mutableListOf<Token>()
@@ -149,7 +151,7 @@ object ExpressionParser {
             throw ArithmeticException("Factorial requires a non-negative integer")
         }
         if (intVal < 0) throw ArithmeticException("Factorial of negative number")
-        if (intVal > 170) throw ArithmeticException("Factorial too large")
+        if (intVal > MAX_FACTORIAL_INPUT) throw ArithmeticException("Factorial too large")
 
         var result = BigDecimal.ONE
         for (i in 2..intVal) {

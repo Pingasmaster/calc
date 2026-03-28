@@ -19,7 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.calculator.app.R
 import com.calculator.app.domain.model.CalculatorState
+
+private const val TEXT_LENGTH_SMALL_THRESHOLD = 12
+private const val TEXT_LENGTH_MEDIUM_THRESHOLD = 8
 
 private data class DisplayData(
     val mainText: String,
@@ -91,9 +96,9 @@ fun DisplayPanel(
         ) { text ->
             Text(
                 text = text,
-                style = if (text.length > 12) {
+                style = if (text.length > TEXT_LENGTH_SMALL_THRESHOLD) {
                     MaterialTheme.typography.displaySmall
-                } else if (text.length > 8) {
+                } else if (text.length > TEXT_LENGTH_MEDIUM_THRESHOLD) {
                     MaterialTheme.typography.displayMedium
                 } else {
                     MaterialTheme.typography.displayLarge
@@ -126,7 +131,7 @@ fun DisplayPanel(
         ) { preview ->
             if (preview.isNotEmpty()) {
                 Text(
-                    text = "= $preview",
+                    text = stringResource(R.string.display_preview_prefix, preview),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     textAlign = TextAlign.End,

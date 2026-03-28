@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION") // Newer ButtonGroup overloads use non-composable content builder; migration pending API stabilization
 
 package com.calculator.app.ui.calculator.components
 

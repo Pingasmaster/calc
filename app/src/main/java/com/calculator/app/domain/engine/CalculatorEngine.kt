@@ -4,6 +4,10 @@ import java.math.BigDecimal
 
 class CalculatorEngine {
 
+    companion object {
+        const val MAX_DISPLAY_DECIMAL_PLACES = 10
+    }
+
     fun evaluate(expression: String): Result<String> {
         if (expression.isBlank()) return Result.failure(IllegalArgumentException("Empty expression"))
         return try {
@@ -28,8 +32,8 @@ class CalculatorEngine {
         } else {
             val plain = stripped.toPlainString()
             // Cap decimal places for display
-            if (stripped.scale() > 10) {
-                value.setScale(10, java.math.RoundingMode.HALF_UP)
+            if (stripped.scale() > MAX_DISPLAY_DECIMAL_PLACES) {
+                value.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
                     .stripTrailingZeros()
                     .toPlainString()
             } else {

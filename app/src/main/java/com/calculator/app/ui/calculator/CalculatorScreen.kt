@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -23,10 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.calculator.app.R
 import com.calculator.app.ui.calculator.components.ButtonGrid
 import com.calculator.app.ui.calculator.components.DisplayPanel
 import com.calculator.app.ui.calculator.components.ScientificRow
+import com.calculator.app.ui.theme.CalculatorShapes
 
 @Composable
 fun CalculatorScreen(
@@ -43,7 +45,7 @@ fun CalculatorScreen(
     ) {
         // Display area with rounded bottom corners — clickable to open history
         Surface(
-            shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp),
+            shape = CalculatorShapes.HistoryOverlay,
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
             modifier = Modifier
                 .weight(1f)
@@ -86,7 +88,7 @@ fun CalculatorScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.settings_icon),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
