@@ -105,6 +105,7 @@ fun CalculatorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 4.dp),
+                onLongPressBackspace = { viewModel.onButtonClick("AC") },
             )
 
             ButtonGrid(

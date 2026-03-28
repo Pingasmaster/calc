@@ -1,6 +1,8 @@
 package com.calculator.app.ui.calculator.components
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -13,10 +15,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -74,6 +81,7 @@ fun CalculatorButtonView(
     button: CalculatorButton,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val colors = rememberButtonColors(button.category)
@@ -96,15 +104,23 @@ fun CalculatorButtonView(
         }
 
         ButtonCategory.BACKSPACE -> {
-            TextButton(
-                onClick = onClick,
-                modifier = modifier.semantics { contentDescription = button.contentDescription },
-                shapes = ButtonDefaults.shapes(
-                    shape = CalculatorShapes.BackspaceButton,
-                    pressedShape = CalculatorShapes.BackspaceButtonPressed,
-                ),
-                interactionSource = interactionSource,
-                contentPadding = PaddingValues(0.dp),
+            val haptic = LocalHapticFeedback.current
+            Box(
+                modifier = modifier
+                    .clip(CalculatorShapes.BackspaceButton)
+                    .combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(),
+                        onClick = onClick,
+                        onLongClick = if (onLongClick != null) {
+                            {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onLongClick()
+                            }
+                        } else null,
+                    )
+                    .semantics { contentDescription = button.contentDescription },
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
