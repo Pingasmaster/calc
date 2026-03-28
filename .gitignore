@@ -14,3 +14,4 @@ local.properties
 *.aab
 .password-signing-keys
 release-keystore.jks
+.build.lock
