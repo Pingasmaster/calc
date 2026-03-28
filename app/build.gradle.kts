@@ -12,8 +12,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "1.0.17"
+        versionCode = 20
+        versionName = "1.0.19"
     }
 
     signingConfigs {
@@ -63,23 +63,23 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2026.03.00")
     implementation(composeBom)
 
-    // Compose (pinned to 1.11.0-beta01 for M3 Expressive compatibility)
-    implementation("androidx.compose.runtime:runtime:1.11.0-beta01")
-    implementation("androidx.compose.ui:ui:1.11.0-beta01")
-    implementation("androidx.compose.ui:ui-graphics:1.11.0-beta01")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.11.0-beta01")
-    debugImplementation("androidx.compose.ui:ui-tooling:1.11.0-beta01")
-    implementation("androidx.compose.foundation:foundation:1.11.0-beta01")
-    implementation("androidx.compose.animation:animation:1.11.0-beta01")
+    // Compose (pinned for M3 Expressive compatibility)
+    implementation("androidx.compose.runtime:runtime:1.11.0-beta02")
+    implementation("androidx.compose.ui:ui:1.11.0-beta02")
+    implementation("androidx.compose.ui:ui-graphics:1.11.0-beta02")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.11.0-beta02")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.11.0-beta02")
+    implementation("androidx.compose.foundation:foundation:1.11.0-beta02")
+    implementation("androidx.compose.animation:animation:1.11.0-beta02")
 
     // Material 3 Expressive
-    implementation("androidx.compose.material3:material3:1.5.0-alpha15")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha16")
 
     // Material Icons
     implementation("androidx.compose.material:material-icons-extended")
 
     // Material 3 Adaptive (WindowSizeClass)
-    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha01")
+    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
 
     // Graphics Shapes (for MaterialShapes)
     implementation("androidx.graphics:graphics-shapes:1.1.0")
@@ -88,8 +88,8 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.13.0")
 
     // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-alpha02")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0-alpha02")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0-alpha03")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0-alpha03")
 
     // Room (for history)
     implementation("androidx.room:room-runtime:2.8.4")
