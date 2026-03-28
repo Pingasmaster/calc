@@ -4,6 +4,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+LOCKFILE="$SCRIPT_DIR/.build.lock"
+exec 9>"$LOCKFILE"
+if ! flock -n 9; then
+    echo "Another build is already running."
+    exit 1
+fi
+trap 'rm -f "$LOCKFILE"' EXIT
+
 GRADLE_APK="app/build/outputs/apk/release/app-release.apk"
 ROOT_APK="app-release.apk"
 BUILD_GRADLE="app/build.gradle.kts"
