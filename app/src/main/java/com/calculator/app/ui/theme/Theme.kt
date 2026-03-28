@@ -2,7 +2,6 @@ package com.calculator.app.ui.theme
 
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -11,9 +10,14 @@ import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -48,6 +52,15 @@ fun CalculatorTheme(
         colorScheme
     }
 
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.decorView.setBackgroundColor(finalColorScheme.surface.toArgb())
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
+    }
+
     MaterialExpressiveTheme(
         colorScheme = finalColorScheme.animated(),
         typography = CalculatorTypography,
@@ -57,9 +70,10 @@ fun CalculatorTheme(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ColorScheme.animated(): ColorScheme {
-    val spec = spring<Color>(dampingRatio = 1.0f, stiffness = 1400f)
+    val spec = MotionScheme.expressive().fastEffectsSpec<Color>()
 
     return copy(
         primary = animateColorAsState(primary, spec).value,

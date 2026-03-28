@@ -99,7 +99,7 @@ fun SettingsSheet(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Palette,
-                    contentDescription = null,
+                    contentDescription = "Dynamic color",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
@@ -130,7 +130,7 @@ fun SettingsSheet(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.DarkMode,
-                    contentDescription = null,
+                    contentDescription = "OLED dark theme",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))

@@ -206,8 +206,8 @@ private fun ClearHistoryDialog(
         icon = {
             Icon(
                 imageVector = Icons.Default.DeleteForever,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
+                contentDescription = "Delete",
+                modifier = Modifier.size(24.dp),
             )
         },
         title = { Text("Clear history?") },

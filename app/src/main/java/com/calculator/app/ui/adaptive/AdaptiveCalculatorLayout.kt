@@ -79,6 +79,7 @@ fun AdaptiveCalculatorLayout(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
                     .systemBarsPadding(),
             ) {
                 CalculatorScreen(

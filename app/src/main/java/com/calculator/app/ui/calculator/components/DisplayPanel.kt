@@ -1,7 +1,6 @@
 package com.calculator.app.ui.calculator.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +29,7 @@ private data class DisplayData(
     val isError: Boolean,
 )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DisplayPanel(
     state: CalculatorState,
@@ -47,13 +48,15 @@ fun DisplayPanel(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End,
     ) {
+        val motionScheme = MaterialTheme.motionScheme
+
         // Expression line (shown above result when = was pressed)
         AnimatedContent(
             targetState = displayData.expressionText,
             transitionSpec = {
-                (slideInVertically(spring(dampingRatio = 0.8f, stiffness = 400f)) { -it } + fadeIn())
+                (slideInVertically(motionScheme.defaultSpatialSpec()) { -it } + fadeIn(motionScheme.defaultEffectsSpec()))
                     .togetherWith(
-                        slideOutVertically(spring(dampingRatio = 0.8f, stiffness = 400f)) { it } + fadeOut()
+                        slideOutVertically(motionScheme.defaultSpatialSpec()) { it } + fadeOut(motionScheme.defaultEffectsSpec())
                     )
             },
             label = "expression",
@@ -76,12 +79,12 @@ fun DisplayPanel(
             targetState = displayData.mainText,
             transitionSpec = {
                 if (targetState != initialState) {
-                    (slideInVertically(spring(dampingRatio = 0.7f, stiffness = 300f)) { it } + fadeIn())
+                    (slideInVertically(motionScheme.defaultSpatialSpec()) { it } + fadeIn(motionScheme.defaultEffectsSpec()))
                         .togetherWith(
-                            slideOutVertically(spring(dampingRatio = 0.7f, stiffness = 300f)) { -it } + fadeOut()
+                            slideOutVertically(motionScheme.defaultSpatialSpec()) { -it } + fadeOut(motionScheme.defaultEffectsSpec())
                         )
                 } else {
-                    fadeIn() togetherWith fadeOut()
+                    fadeIn(motionScheme.defaultEffectsSpec()) togetherWith fadeOut(motionScheme.defaultEffectsSpec())
                 }
             },
             label = "mainDisplay",
@@ -117,7 +120,7 @@ fun DisplayPanel(
                 ""
             },
             transitionSpec = {
-                fadeIn(spring(stiffness = 800f)) togetherWith fadeOut(spring(stiffness = 800f))
+                fadeIn(motionScheme.fastEffectsSpec()) togetherWith fadeOut(motionScheme.fastEffectsSpec())
             },
             label = "preview",
         ) { preview ->

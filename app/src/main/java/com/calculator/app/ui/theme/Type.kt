@@ -1,6 +1,7 @@
 package com.calculator.app.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -109,3 +110,13 @@ val CalculatorTypography = Typography(
         letterSpacing = 0.5.sp,
     ),
 )
+
+// Calculator button typography — bold variants of standard M3 roles
+val Typography.buttonLarge: TextStyle
+    @Composable get() = headlineLarge.copy(fontWeight = FontWeight.Bold)
+
+val Typography.buttonMedium: TextStyle
+    @Composable get() = headlineMedium.copy(fontWeight = FontWeight.Bold)
+
+val Typography.buttonSmall: TextStyle
+    @Composable get() = titleLarge.copy(fontWeight = FontWeight.Bold)

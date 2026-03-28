@@ -1,7 +1,6 @@
 package com.calculator.app.ui.calculator.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -20,13 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.calculator.app.domain.model.ButtonCategory
 import com.calculator.app.domain.model.CalculatorButton
-import com.calculator.app.ui.theme.*
+import com.calculator.app.ui.theme.CalculatorShapes
+import com.calculator.app.ui.theme.buttonLarge
+import com.calculator.app.ui.theme.buttonMedium
+import com.calculator.app.ui.theme.buttonSmall
 
 data class ButtonColors(
     val containerColor: Color,
@@ -35,35 +35,35 @@ data class ButtonColors(
 
 @Composable
 fun rememberButtonColors(category: ButtonCategory): ButtonColors {
-    val isDark = isSystemInDarkTheme()
+    val colorScheme = MaterialTheme.colorScheme
     return when (category) {
         ButtonCategory.NUMBER -> ButtonColors(
-            containerColor = if (isDark) NumberButtonColorDark else NumberButtonColor,
-            contentColor = if (isDark) NumberButtonContentColorDark else NumberButtonContentColor,
+            containerColor = colorScheme.surfaceContainerHigh,
+            contentColor = colorScheme.onSurface,
         )
         ButtonCategory.OPERATOR -> ButtonColors(
-            containerColor = if (isDark) OperatorButtonColorDark else OperatorButtonColor,
-            contentColor = if (isDark) OperatorButtonContentColorDark else OperatorButtonContentColor,
+            containerColor = colorScheme.secondaryContainer,
+            contentColor = colorScheme.onSecondaryContainer,
         )
         ButtonCategory.FUNCTION -> ButtonColors(
-            containerColor = if (isDark) FunctionButtonColorDark else FunctionButtonColor,
-            contentColor = if (isDark) FunctionButtonContentColorDark else FunctionButtonContentColor,
+            containerColor = colorScheme.tertiaryContainer,
+            contentColor = colorScheme.onTertiaryContainer,
         )
         ButtonCategory.AC -> ButtonColors(
-            containerColor = if (isDark) ACButtonColorDark else ACButtonColor,
-            contentColor = if (isDark) ACButtonContentColorDark else ACButtonContentColor,
+            containerColor = colorScheme.surfaceContainerHighest,
+            contentColor = colorScheme.onSurface,
         )
         ButtonCategory.EQUALS -> ButtonColors(
-            containerColor = if (isDark) EqualsButtonColorDark else EqualsButtonColor,
-            contentColor = if (isDark) EqualsButtonContentColorDark else EqualsButtonContentColor,
+            containerColor = colorScheme.primary,
+            contentColor = colorScheme.onPrimary,
         )
         ButtonCategory.SCIENTIFIC -> ButtonColors(
             containerColor = Color.Transparent,
-            contentColor = if (isDark) ScientificTextColorDark else ScientificTextColor,
+            contentColor = colorScheme.onSurfaceVariant,
         )
         ButtonCategory.BACKSPACE -> ButtonColors(
             containerColor = Color.Transparent,
-            contentColor = if (isDark) BackspaceIconColorDark else BackspaceIconColor,
+            contentColor = colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -89,9 +89,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonSmall,
                     color = colors.contentColor,
                 )
             }
@@ -112,7 +110,7 @@ fun CalculatorButtonView(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = button.contentDescription,
                     tint = colors.contentColor,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }
@@ -134,9 +132,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonLarge,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -159,9 +155,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonMedium,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -184,9 +178,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonLarge,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -209,9 +201,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonMedium,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -234,9 +224,7 @@ fun CalculatorButtonView(
             ) {
                 Text(
                     text = button.symbol,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.buttonMedium,
                     textAlign = TextAlign.Center,
                 )
             }
