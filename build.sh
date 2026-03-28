@@ -8,8 +8,8 @@ GRADLE_APK="app/build/outputs/apk/release/app-release.apk"
 ROOT_APK="app-release.apk"
 BUILD_GRADLE="app/build.gradle.kts"
 
-# Build
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew lint assembleDebug assembleRelease
+# Clean and build
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew clean lint assembleDebug assembleRelease
 
 # Replace root APK with fresh build
 rm -f "$ROOT_APK"

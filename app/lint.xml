@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<lint>
-    <!-- Logo uses a square design intentionally -->
-    <issue id="IconLauncherShape" severity="ignore" />
-    <!-- Round and regular icons use the same source image -->
-    <issue id="IconDuplicates" severity="ignore" />
-</lint>
