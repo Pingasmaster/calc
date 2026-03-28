@@ -54,12 +54,13 @@ fun CalculatorScreen(
                     if (onDisplayClick != null) {
                         Modifier
                             .pointerInput(Unit) {
+                                val dragThresholdPx = 80.dp.toPx()
                                 var totalDrag = 0f
                                 detectVerticalDragGestures(
                                     onDragStart = { totalDrag = 0f },
                                     onVerticalDrag = { _, dragAmount ->
                                         totalDrag += dragAmount
-                                        if (totalDrag > 150f) {
+                                        if (totalDrag > dragThresholdPx) {
                                             onDisplayClick()
                                             totalDrag = 0f
                                         }

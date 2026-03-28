@@ -120,7 +120,7 @@ fun HistoryBottomSheet(
                     onClick = { showClearDialog = true },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(24.dp),
+                        .padding(16.dp),
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 ) {
