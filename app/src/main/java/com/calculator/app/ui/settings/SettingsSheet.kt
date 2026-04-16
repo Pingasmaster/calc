@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.calculator.app.R
 import com.calculator.app.data.local.preferences.ThemeMode
@@ -100,7 +98,7 @@ fun SettingsSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Palette,
+                    painter = painterResource(R.drawable.ic_palette),
                     contentDescription = stringResource(R.string.settings_dynamic_color),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -131,7 +129,7 @@ fun SettingsSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.DarkMode,
+                    painter = painterResource(R.drawable.ic_dark_mode),
                     contentDescription = stringResource(R.string.settings_oled_dark),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

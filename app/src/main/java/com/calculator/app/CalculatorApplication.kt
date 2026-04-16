@@ -19,7 +19,9 @@ class CalculatorApplication : Application() {
             this,
             CalculatorDatabase::class.java,
             "calculator.db",
-        ).build()
+        )
+            .addMigrations(CalculatorDatabase.MIGRATION_1_2)
+            .build()
         userPreferences = UserPreferences(this)
     }
 }

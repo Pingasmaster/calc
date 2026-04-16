@@ -222,7 +222,32 @@ class CalculatorEngineTest {
     @Test
     fun `addition and percent`() {
         val result = engine.evaluate("100+50%")
-        assertEquals("100.5", result.getOrNull())
+        assertEquals("150", result.getOrNull())
+    }
+
+    @Test
+    fun `subtraction and percent`() {
+        val result = engine.evaluate("100-20%")
+        assertEquals("80", result.getOrNull())
+    }
+
+    @Test
+    fun `double unary minus`() {
+        assertEquals("5", engine.evaluate("--5").getOrNull())
+    }
+
+    @Test
+    fun `unknown character returns failure`() {
+        assertTrue(engine.evaluate("1@2").isFailure)
+    }
+
+    @Test
+    fun `high precision sqrt of two`() {
+        val result = engine.evaluate("\u221A(2)")
+        assertTrue(result.isSuccess)
+        val v = result.getOrNull()!!
+        // sqrt(2) ≈ 1.41421356237…; engine formats at 10 decimal places → 1.4142135624
+        assertEquals("1.4142135624", v)
     }
 
     @Test

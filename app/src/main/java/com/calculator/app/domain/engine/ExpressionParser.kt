@@ -68,30 +68,40 @@ object ExpressionParser {
 
         while (stack.isNotEmpty()) {
             val top = stack.removeLast()
-            if (top is Token.LeftParen || top is Token.RightParen) continue
+            if (top is Token.LeftParen) throw IllegalArgumentException("Unmatched '('")
+            if (top is Token.RightParen) continue
             output.add(top)
         }
 
         return output
     }
 
+    private data class StackVal(val v: BigDecimal, val isPercent: Boolean = false)
+
+    private val HUNDRED = BigDecimal(100)
+
+    private fun StackVal.asDecimal(): BigDecimal =
+        if (isPercent) v.divide(HUNDRED, MC) else v
+
     fun evaluatePostfix(postfix: List<Token>): BigDecimal {
-        val stack = ArrayDeque<BigDecimal>()
+        val stack = ArrayDeque<StackVal>()
 
         for (token in postfix) {
             when (token) {
-                is Token.Number -> {
-                    stack.addLast(BigDecimal(token.value))
-                }
+                is Token.Number -> stack.addLast(StackVal(BigDecimal(token.value)))
 
-                is Token.Constant -> {
-                    stack.addLast(token.value)
-                }
+                is Token.Constant -> stack.addLast(StackVal(token.value))
 
                 is Token.Operator -> {
                     if (stack.size < 2) throw ArithmeticException("Invalid expression")
-                    val b = stack.removeLast()
-                    val a = stack.removeLast()
+                    val bRaw = stack.removeLast()
+                    val a = stack.removeLast().asDecimal()
+                    val b = when (token.op) {
+                        "+", "-" ->
+                            if (bRaw.isPercent) a.multiply(bRaw.v, MC).divide(HUNDRED, MC)
+                            else bRaw.v
+                        else -> bRaw.asDecimal()
+                    }
                     val result = when (token.op) {
                         "+" -> a.add(b, MC)
                         "-" -> a.subtract(b, MC)
@@ -102,33 +112,35 @@ object ExpressionParser {
                         }
                         else -> throw IllegalArgumentException("Unknown operator: ${token.op}")
                     }
-                    stack.addLast(result)
+                    stack.addLast(StackVal(result))
                 }
 
                 is Token.UnaryMinus -> {
                     if (stack.isEmpty()) throw ArithmeticException("Invalid expression")
-                    stack.addLast(stack.removeLast().negate())
+                    val top = stack.removeLast()
+                    stack.addLast(StackVal(top.v.negate(), top.isPercent))
                 }
 
                 is Token.Percent -> {
                     if (stack.isEmpty()) throw ArithmeticException("Invalid expression")
-                    val value = stack.removeLast()
-                    stack.addLast(value.divide(BigDecimal(100), MC))
+                    val top = stack.removeLast()
+                    // Collapse stacked percents (e.g. "50%%") into one.
+                    val base = if (top.isPercent) top.v.divide(HUNDRED, MC) else top.v
+                    stack.addLast(StackVal(base, isPercent = true))
                 }
 
                 is Token.Function -> {
                     when (token.name) {
                         "sqrt" -> {
                             if (stack.isEmpty()) throw ArithmeticException("Invalid expression")
-                            val value = stack.removeLast()
+                            val value = stack.removeLast().asDecimal()
                             if (value < BigDecimal.ZERO) throw ArithmeticException("Square root of negative number")
-                            val sqrtDouble = Math.sqrt(value.toDouble())
-                            stack.addLast(BigDecimal(sqrtDouble, MC))
+                            stack.addLast(StackVal(value.sqrt(MC)))
                         }
                         "!" -> {
                             if (stack.isEmpty()) throw ArithmeticException("Invalid expression")
-                            val value = stack.removeLast()
-                            stack.addLast(factorial(value))
+                            val value = stack.removeLast().asDecimal()
+                            stack.addLast(StackVal(factorial(value)))
                         }
                         else -> throw IllegalArgumentException("Unknown function: ${token.name}")
                     }
@@ -141,7 +153,7 @@ object ExpressionParser {
         }
 
         if (stack.size != 1) throw ArithmeticException("Invalid expression")
-        return stack.removeLast()
+        return stack.removeLast().asDecimal()
     }
 
     private fun factorial(n: BigDecimal): BigDecimal {

@@ -17,11 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.window.core.layout.WindowSizeClass
-import com.calculator.app.CalculatorApplication
 import com.calculator.app.data.local.preferences.ThemeMode
+import com.calculator.app.data.local.preferences.UserPreferences
 import com.calculator.app.ui.calculator.CalculatorScreen
 import com.calculator.app.ui.calculator.CalculatorViewModel
 import com.calculator.app.ui.history.HistoryBottomSheet
@@ -32,16 +31,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun AdaptiveCalculatorLayout(
     windowAdaptiveInfo: WindowAdaptiveInfo,
+    userPreferences: UserPreferences,
+    themeMode: ThemeMode,
+    dynamicColor: Boolean,
+    oledBlack: Boolean,
 ) {
     val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)
     val historyItems by viewModel.history.collectAsStateWithLifecycle()
     val windowSizeClass = windowAdaptiveInfo.windowSizeClass
-
-    val context = LocalContext.current
-    val prefs = (context.applicationContext as CalculatorApplication).userPreferences
-    val themeMode by prefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
-    val dynamicColor by prefs.dynamicColorEnabled.collectAsStateWithLifecycle(initialValue = true)
-    val oledBlack by prefs.oledBlackEnabled.collectAsStateWithLifecycle(initialValue = false)
     val scope = rememberCoroutineScope()
 
     var showHistory by remember { mutableStateOf(false) }
@@ -106,9 +103,9 @@ fun AdaptiveCalculatorLayout(
             themeMode = themeMode,
             dynamicColor = dynamicColor,
             oledBlack = oledBlack,
-            onThemeModeChange = { scope.launch { prefs.setThemeMode(it) } },
-            onDynamicColorChange = { scope.launch { prefs.setDynamicColor(it) } },
-            onOledBlackChange = { scope.launch { prefs.setOledBlack(it) } },
+            onThemeModeChange = { scope.launch { userPreferences.setThemeMode(it) } },
+            onDynamicColorChange = { scope.launch { userPreferences.setDynamicColor(it) } },
+            onOledBlackChange = { scope.launch { userPreferences.setOledBlack(it) } },
             onDismiss = { showSettings = false },
         )
     }

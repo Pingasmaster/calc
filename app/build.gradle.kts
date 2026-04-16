@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
+    id("androidx.room")
 }
 
 android {
@@ -10,20 +11,17 @@ android {
 
     defaultConfig {
         applicationId = "com.calculator.app"
-        minSdk = 31
+        minSdk = 33
         targetSdk = 37
-        versionCode = 37
-        versionName = "1.0.36"
+        versionCode = 39
+        versionName = "1.0.38"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -41,7 +39,12 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = false
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -60,9 +63,6 @@ dependencies {
 
     // Material 3 Expressive
     implementation(libs.material3)
-
-    // Material Icons
-    implementation(libs.material.icons.extended)
 
     // Material 3 Adaptive (WindowSizeClass)
     implementation(libs.material3.adaptive)

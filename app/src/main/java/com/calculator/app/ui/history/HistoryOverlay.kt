@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -39,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.calculator.app.R
 import com.calculator.app.domain.model.HistoryItem
@@ -126,7 +125,7 @@ fun HistoryBottomSheet(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.DeleteForever,
+                        painter = painterResource(R.drawable.ic_delete_forever),
                         contentDescription = stringResource(R.string.history_clear_all),
                         modifier = Modifier.size(24.dp),
                     )
@@ -208,7 +207,7 @@ private fun ClearHistoryDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Default.DeleteForever,
+                painter = painterResource(R.drawable.ic_delete_forever),
                 contentDescription = stringResource(R.string.history_delete_icon),
                 modifier = Modifier.size(24.dp),
             )
@@ -303,7 +302,7 @@ fun HistoryPanel(
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
             ) {
                 Icon(
-                    imageVector = Icons.Default.DeleteForever,
+                    painter = painterResource(R.drawable.ic_delete_forever),
                     contentDescription = stringResource(R.string.history_clear_all),
                     modifier = Modifier.size(24.dp),
                 )

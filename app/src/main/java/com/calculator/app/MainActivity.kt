@@ -36,7 +36,13 @@ class MainActivity : ComponentActivity() {
                 oledBlack = oledBlack,
             ) {
                 val windowAdaptiveInfo = currentWindowAdaptiveInfo()
-                AdaptiveCalculatorLayout(windowAdaptiveInfo = windowAdaptiveInfo)
+                AdaptiveCalculatorLayout(
+                    windowAdaptiveInfo = windowAdaptiveInfo,
+                    userPreferences = prefs,
+                    themeMode = themeMode,
+                    dynamicColor = dynamicColor,
+                    oledBlack = oledBlack,
+                )
             }
         }
     }

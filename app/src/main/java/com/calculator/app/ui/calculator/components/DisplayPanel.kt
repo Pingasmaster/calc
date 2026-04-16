@@ -94,6 +94,8 @@ fun DisplayPanel(
         if (isEditing) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            val cursorColor = MaterialTheme.colorScheme.primary
+            val cursorBrush = remember(cursorColor) { SolidColor(cursorColor) }
 
             BasicTextField(
                 state = expressionField,
@@ -103,7 +105,7 @@ fun DisplayPanel(
                     color = displayColor,
                 ),
                 lineLimits = TextFieldLineLimits.SingleLine,
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = cursorBrush,
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),

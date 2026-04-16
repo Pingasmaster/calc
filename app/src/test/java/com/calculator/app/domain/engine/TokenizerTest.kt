@@ -1,6 +1,7 @@
 package com.calculator.app.domain.engine
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.math.BigDecimal
@@ -354,13 +355,10 @@ class TokenizerTest {
     }
 
     @Test
-    fun `unknown characters are skipped`() {
-        val tokens = Tokenizer.tokenize("1@2")
-        // @ is unknown and skipped; 2 follows Number(1), so implicit * is inserted
-        // Result: Number(1), Operator(*), Number(2)
-        assertEquals(3, tokens.size)
-        assertTrue(tokens[1] is Token.Operator)
-        assertEquals("*", (tokens[1] as Token.Operator).op)
+    fun `unknown characters throw`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            Tokenizer.tokenize("1@2")
+        }
     }
 
     // ========== Complex expressions ==========
@@ -391,9 +389,9 @@ class TokenizerTest {
     fun `expression with decimal at end of number`() {
         // A lone "3." should tokenize as Number("3") since no digit follows the dot
         val tokens = Tokenizer.tokenize("3.")
-        // "3" is consumed as a number, then "." without a following digit is skipped
+        // Trailing dot is stripped during tokenization.
         assertEquals(1, tokens.size)
-        assertEquals(Token.Number("3."), tokens[0])
+        assertEquals(Token.Number("3"), tokens[0])
     }
 
     @Test
@@ -405,11 +403,12 @@ class TokenizerTest {
     }
 
     @Test
-    fun `e followed by letter is not a constant`() {
-        // "ex" - 'e' followed by a letter should NOT be tokenized as constant e
-        val tokens = Tokenizer.tokenize("ex")
-        // 'e' followed by 'x' -> e is NOT parsed as constant, both are skipped as unknown
-        assertTrue(tokens.filterIsInstance<Token.Constant>().none { it.name == "e" })
+    fun `e followed by letter throws`() {
+        // "ex" - 'e' followed by a letter is not tokenized as the constant 'e',
+        // and the lookahead leaves both chars as unknown → Tokenizer rejects it.
+        assertThrows(IllegalArgumentException::class.java) {
+            Tokenizer.tokenize("ex")
+        }
     }
 
     @Test

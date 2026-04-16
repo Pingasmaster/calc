@@ -15,8 +15,8 @@ sealed class Token {
 
 object Tokenizer {
 
-    private val PI = BigDecimal("3.14159265358979")
-    private val E = BigDecimal("2.71828182845905")
+    private val PI = BigDecimal("3.141592653589793238462643")
+    private val E = BigDecimal("2.718281828459045235360287")
 
     fun tokenize(expression: String): List<Token> {
         val tokens = mutableListOf<Token>()
@@ -41,7 +41,8 @@ object Tokenizer {
                     if (i < expr.length && expr[i] == '.') {
                         throw IllegalArgumentException("Invalid number format")
                     }
-                    val numStr = expr.substring(start, i)
+                    var numStr = expr.substring(start, i)
+                    if (numStr.endsWith(".")) numStr = numStr.dropLast(1)
                     // Insert implicit multiplication if preceded by a closing paren, constant, or number
                     if (tokens.isNotEmpty() && needsImplicitMultiply(tokens.last())) {
                         tokens.add(Token.Operator("*", 2))
@@ -72,7 +73,8 @@ object Tokenizer {
 
                 c == '-' -> {
                     // Determine if this is unary minus
-                    if (tokens.isEmpty() || tokens.last() is Token.LeftParen || tokens.last() is Token.Operator) {
+                    val last = tokens.lastOrNull()
+                    if (last == null || last is Token.LeftParen || last is Token.Operator || last is Token.UnaryMinus) {
                         tokens.add(Token.UnaryMinus())
                     } else {
                         tokens.add(Token.Operator("-", 1))
@@ -121,9 +123,7 @@ object Tokenizer {
                     i++
                 }
 
-                else -> {
-                    i++ // Skip unknown characters
-                }
+                else -> throw IllegalArgumentException("Unexpected character '$c'")
             }
         }
         return tokens

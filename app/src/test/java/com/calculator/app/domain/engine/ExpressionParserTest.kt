@@ -100,11 +100,11 @@ class ExpressionParserTest {
     }
 
     @Test
-    fun `unmatched left paren is tolerated`() {
+    fun `unmatched left paren throws`() {
         val tokens = Tokenizer.tokenize("(1+2")
-        val postfix = ExpressionParser.toPostfix(tokens)
-        val result = ExpressionParser.evaluatePostfix(postfix)
-        assertValueEquals("3", result)
+        assertThrows(IllegalArgumentException::class.java) {
+            ExpressionParser.toPostfix(tokens)
+        }
     }
 
     // ========== Unary minus ==========
@@ -158,8 +158,18 @@ class ExpressionParserTest {
     }
 
     @Test
-    fun `percent in expression`() {
-        assertValueEquals("100.5", evaluate("100+50%"))
+    fun `percent in addition is percent of left operand`() {
+        assertValueEquals("150", evaluate("100+50%"))
+    }
+
+    @Test
+    fun `percent in subtraction is percent of left operand`() {
+        assertValueEquals("80", evaluate("100-20%"))
+    }
+
+    @Test
+    fun `percent in multiplication is divide by 100`() {
+        assertValueEquals("100", evaluate("200*50%"))
     }
 
     @Test

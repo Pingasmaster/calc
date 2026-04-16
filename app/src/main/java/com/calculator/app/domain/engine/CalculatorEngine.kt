@@ -41,7 +41,7 @@ class CalculatorEngine {
             val plain = stripped.toPlainString()
             // Cap decimal places for display
             if (stripped.scale() > MAX_DISPLAY_DECIMAL_PLACES) {
-                value.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
+                stripped.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
                     .stripTrailingZeros()
                     .toPlainString()
             } else {
