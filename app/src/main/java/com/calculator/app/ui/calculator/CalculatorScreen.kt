@@ -1,7 +1,6 @@
 package com.calculator.app.ui.calculator
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +42,7 @@ fun CalculatorScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
     ) {
-        // Display area with rounded bottom corners — clickable to open history
+        // Display area with rounded bottom corners — swipe down to open history
         Surface(
             shape = CalculatorShapes.HistoryOverlay,
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
@@ -52,22 +51,20 @@ fun CalculatorScreen(
                 .fillMaxWidth()
                 .then(
                     if (onDisplayClick != null) {
-                        Modifier
-                            .pointerInput(Unit) {
-                                val dragThresholdPx = 80.dp.toPx()
-                                var totalDrag = 0f
-                                detectVerticalDragGestures(
-                                    onDragStart = { totalDrag = 0f },
-                                    onVerticalDrag = { _, dragAmount ->
-                                        totalDrag += dragAmount
-                                        if (totalDrag > dragThresholdPx) {
-                                            onDisplayClick()
-                                            totalDrag = 0f
-                                        }
-                                    },
-                                )
-                            }
-                            .clickable(onClick = onDisplayClick)
+                        Modifier.pointerInput(Unit) {
+                            val dragThresholdPx = 80.dp.toPx()
+                            var totalDrag = 0f
+                            detectVerticalDragGestures(
+                                onDragStart = { totalDrag = 0f },
+                                onVerticalDrag = { _, dragAmount ->
+                                    totalDrag += dragAmount
+                                    if (totalDrag > dragThresholdPx) {
+                                        onDisplayClick()
+                                        totalDrag = 0f
+                                    }
+                                },
+                            )
+                        }
                     } else {
                         Modifier
                     }
