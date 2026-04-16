@@ -37,8 +37,6 @@ The app follows Material 3 Expressive guidelines throughout: expressive button s
 
 ## Building from source
 
-**Requirements:** Java 21, Android SDK 37
-
 ```bash
 git clone https://github.com/Pingasmaster/calculator.git
 cd calculator
