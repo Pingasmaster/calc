@@ -451,7 +451,10 @@ class CalculatorViewModel(
                     )
                 }
                 saveState()
-                viewModelScope.launch { historyRepo.addEntry(closedExpr, result) }
+                viewModelScope.launch {
+                    runCatching { historyRepo.addEntry(closedExpr, result) }
+                        .onFailure { android.util.Log.w("CalculatorApp", "addEntry failed", it) }
+                }
             },
             onFailure = {
                 _state.update {
@@ -502,11 +505,17 @@ class CalculatorViewModel(
     }
 
     fun clearHistory() {
-        viewModelScope.launch { historyRepo.clearHistory() }
+        viewModelScope.launch {
+            runCatching { historyRepo.clearHistory() }
+                .onFailure { android.util.Log.w("CalculatorApp", "clearHistory failed", it) }
+        }
     }
 
     fun deleteHistoryEntry(id: Long) {
-        viewModelScope.launch { historyRepo.deleteEntry(id) }
+        viewModelScope.launch {
+            runCatching { historyRepo.deleteEntry(id) }
+                .onFailure { android.util.Log.w("CalculatorApp", "deleteEntry failed", it) }
+        }
     }
 
     fun loadFromHistory(value: String) {

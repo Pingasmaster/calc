@@ -19,6 +19,10 @@ class SettingsViewModel(
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
+    // Each setter below delegates to UserPreferences.setThemeSettings(...) via
+    // the single-key convenience wrappers — keeping the UI's per-toggle
+    // callbacks simple while leaving the composite setter available for any
+    // future batch flow (e.g. import/reset).
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { userPreferences.setThemeMode(mode) }
     }
