@@ -13,10 +13,10 @@ android {
 
     defaultConfig {
         applicationId = "com.calculator.app"
-        minSdk = 33
+        minSdk = 35
         targetSdk = 37
-        versionCode = 58
-        versionName = "1.0.57"
+        versionCode = 59
+        versionName = "1.0.58"
     }
 
     buildTypes {

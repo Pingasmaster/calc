@@ -1,7 +1,6 @@
 package com.calculator.app
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -35,13 +34,11 @@ class MainActivity : ComponentActivity() {
         // enableEdgeToEdge() is re-applied with theme-aware bar styles inside
         // the DisposableEffect below; calling it here too would just do the work twice.
 
-        // Calculator UI is static 99% of the time. Tell Android 15+ that we'd
-        // rather not have the display refresh at 90/120 Hz when nothing is
-        // moving — the system still bumps the rate during touch/animation.
-        if (Build.VERSION.SDK_INT >= 35) {
-            @Suppress("NewApi")
-            window.decorView.requestedFrameRate = View.REQUESTED_FRAME_RATE_CATEGORY_NORMAL
-        }
+        // Calculator UI is static 99% of the time. Tell the system we'd rather
+        // not have the display refresh at 90/120 Hz when nothing is moving —
+        // it still bumps the rate during touch/animation. minSdk=35 means this
+        // API (added in API 35) is always available.
+        window.decorView.requestedFrameRate = View.REQUESTED_FRAME_RATE_CATEGORY_NORMAL
 
         setContent {
             val settings by app.themeSettings.collectAsStateWithLifecycle()
