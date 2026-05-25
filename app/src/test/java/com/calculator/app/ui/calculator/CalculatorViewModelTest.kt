@@ -10,6 +10,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -35,7 +36,7 @@ class CalculatorViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         historyRepo = mockk(relaxed = true)
-        coEvery { historyRepo.observeHistory() } returns flowOf(emptyList())
+        coEvery { historyRepo.observeHistory() } returns flowOf(persistentListOf())
         viewModel = newViewModel(SavedStateHandle())
     }
 

@@ -39,11 +39,13 @@ fun SettingsSheet(
     onOledBlackChange: (Boolean) -> Unit,
     onHapticsEnabledChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
     ) {
         Column(

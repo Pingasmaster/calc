@@ -18,6 +18,8 @@ import com.calculator.app.CalculatorApplication
 import com.calculator.app.data.repository.HistoryRepository
 import com.calculator.app.domain.engine.CalculatorEngine
 import com.calculator.app.domain.model.CalculatorState
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -97,7 +99,7 @@ class CalculatorViewModel(
     val state: StateFlow<CalculatorState> = _state.asStateFlow()
 
     val history = historyRepo.observeHistory()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     // Each input method pushes the new expression here; the pipeline below
     // debounces, evaluates on [previewDispatcher], and writes the preview back
@@ -457,8 +459,20 @@ class CalculatorViewModel(
                 }
                 saveState()
                 viewModelScope.launch {
-                    runCatching { historyRepo.addEntry(closedExpr, result) }
-                        .onFailure { android.util.Log.w("CalculatorApp", "addEntry failed", it) }
+                    // Safety net for unknown DB/repo failures: room can throw
+                    // SQLiteException, IllegalStateException, IOException, or
+                    // any wrapped variant — listing each adds no signal. We
+                    // explicitly rethrow CancellationException so coroutine
+                    // cancellation propagates correctly (the historical
+                    // runCatching here would have swallowed it).
+                    @Suppress("TooGenericExceptionCaught")
+                    try {
+                        historyRepo.addEntry(closedExpr, result)
+                    } catch (ce: CancellationException) {
+                        throw ce
+                    } catch (t: Throwable) {
+                        android.util.Log.w("CalculatorApp", "addEntry failed", t)
+                    }
                 }
             },
             onFailure = {
@@ -511,15 +525,31 @@ class CalculatorViewModel(
 
     fun clearHistory() {
         viewModelScope.launch {
-            runCatching { historyRepo.clearHistory() }
-                .onFailure { android.util.Log.w("CalculatorApp", "clearHistory failed", it) }
+            // Safety net for unknown DB/repo failures. See addEntry above for
+            // rationale on the generic catch + explicit cancellation rethrow.
+            @Suppress("TooGenericExceptionCaught")
+            try {
+                historyRepo.clearHistory()
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (t: Throwable) {
+                android.util.Log.w("CalculatorApp", "clearHistory failed", t)
+            }
         }
     }
 
     fun deleteHistoryEntry(id: Long) {
         viewModelScope.launch {
-            runCatching { historyRepo.deleteEntry(id) }
-                .onFailure { android.util.Log.w("CalculatorApp", "deleteEntry failed", it) }
+            // Safety net for unknown DB/repo failures. See addEntry above for
+            // rationale on the generic catch + explicit cancellation rethrow.
+            @Suppress("TooGenericExceptionCaught")
+            try {
+                historyRepo.deleteEntry(id)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (t: Throwable) {
+                android.util.Log.w("CalculatorApp", "deleteEntry failed", t)
+            }
         }
     }
 

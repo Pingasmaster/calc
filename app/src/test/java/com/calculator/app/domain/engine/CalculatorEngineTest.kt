@@ -62,7 +62,7 @@ class CalculatorEngineTest {
     fun `long decimal is capped at 10 places`() {
         val result = engine.evaluate("1/3")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!
+        val value = result.getOrThrow()
         // 1/3 = 0.333... should be capped
         val decimalPlaces = value.substringAfter('.').length
         assertTrue(decimalPlaces <= 10)
@@ -188,7 +188,7 @@ class CalculatorEngineTest {
     fun `pi constant`() {
         val result = engine.evaluate("\u03C0")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!.toDouble()
+        val value = result.getOrThrow().toDouble()
         assertTrue(value > 3.14)
         assertTrue(value < 3.15)
     }
@@ -197,7 +197,7 @@ class CalculatorEngineTest {
     fun `e constant`() {
         val result = engine.evaluate("e")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!.toDouble()
+        val value = result.getOrThrow().toDouble()
         assertTrue(value > 2.71)
         assertTrue(value < 2.72)
     }
@@ -212,7 +212,7 @@ class CalculatorEngineTest {
     fun `implicit multiplication with constant`() {
         val result = engine.evaluate("2\u03C0")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!.toDouble()
+        val value = result.getOrThrow().toDouble()
         assertTrue(value > 6.28)
         assertTrue(value < 6.29)
     }
@@ -245,7 +245,7 @@ class CalculatorEngineTest {
     fun `high precision sqrt of two`() {
         val result = engine.evaluate("\u221A(2)")
         assertTrue(result.isSuccess)
-        val v = result.getOrNull()!!
+        val v = result.getOrThrow()
         // sqrt(2) ≈ 1.41421356237…; engine formats at 10 decimal places → 1.4142135624
         assertEquals("1.4142135624", v)
     }
@@ -346,7 +346,7 @@ class CalculatorEngineTest {
     fun `very large factorial uses scientific notation`() {
         val result = engine.evaluate("170!")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!
+        val value = result.getOrThrow()
         assertTrue("Large factorial should use scientific notation", value.contains("E+"))
         assertTrue("Scientific notation should be concise", value.length < 20)
     }
@@ -378,7 +378,7 @@ class CalculatorEngineTest {
         // 999999999999999 + 1 = 1E15 (16-digit integer) — exceeds MAX_INTEGER_DIGITS.
         val result = engine.evaluate("999999999999999+1")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!
+        val value = result.getOrThrow()
         assertTrue("Expected scientific notation: $value", value.contains("E+"))
     }
 
@@ -386,7 +386,7 @@ class CalculatorEngineTest {
     fun `negative 16 digit integer switches to scientific`() {
         val result = engine.evaluate("-999999999999999-1")
         assertTrue(result.isSuccess)
-        val value = result.getOrNull()!!
+        val value = result.getOrThrow()
         assertTrue("Expected scientific notation: $value", value.contains("E+"))
         assertTrue("Expected negative sign: $value", value.startsWith("-"))
     }
@@ -408,7 +408,7 @@ class CalculatorEngineTest {
     @Test
     fun `one seventh capped at ten places`() {
         val result = engine.evaluate("1/7")
-        val value = result.getOrNull()!!
+        val value = result.getOrThrow()
         val fractional = value.substringAfter('.')
         assertTrue(fractional.length <= 10)
         assertTrue(value.startsWith("0.142857"))
@@ -441,7 +441,7 @@ class CalculatorEngineTest {
 
     @Test
     fun `one eleventh rounds at ten places`() {
-        val value = engine.evaluate("1/11").getOrNull()!!
+        val value = engine.evaluate("1/11").getOrThrow()
         assertTrue("value=$value", value.startsWith("0.0909"))
         val fractional = value.substringAfter('.')
         assertTrue(fractional.length <= 10)
@@ -453,14 +453,14 @@ class CalculatorEngineTest {
     fun `169 factorial uses scientific notation`() {
         val result = engine.evaluate("169!")
         assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()!!.contains("E+"))
+        assertTrue(result.getOrThrow().contains("E+"))
     }
 
     @Test
     fun `150 factorial uses scientific notation`() {
         val result = engine.evaluate("150!")
         assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()!!.contains("E+"))
+        assertTrue(result.getOrThrow().contains("E+"))
     }
 
     // ========== Sequential evaluations ==========

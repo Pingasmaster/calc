@@ -16,7 +16,10 @@ complexity:
     allowedComplexity: 20
   LongMethod:
     active: true
-    allowedLines: 80
+    # Compose UI functions are naturally vertical (deep declarative nesting);
+    # an 80-line cap forces noise-extracting tiny helpers. 120 still flags
+    # genuinely-too-long methods.
+    allowedLines: 120
   LongParameterList:
     active: true
     allowedFunctionParameters: 8

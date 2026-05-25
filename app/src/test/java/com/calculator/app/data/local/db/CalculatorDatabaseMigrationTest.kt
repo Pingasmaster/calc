@@ -1,24 +1,42 @@
 package com.calculator.app.data.local.db
 
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteStatement
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
 
 class CalculatorDatabaseMigrationTest {
 
+    /**
+     * Stubs the no-arg `SQLiteConnection.execSQL` extension by mocking the
+     * underlying `prepare(...)` + step()/close() path on the connection +
+     * statement pair. Lets us assert that the migration issues the expected
+     * DDL strings.
+     */
+    private fun mockConnection(): SQLiteConnection {
+        val conn = mockk<SQLiteConnection>(relaxed = true)
+        val stmt = mockk<SQLiteStatement>(relaxed = true)
+        every { conn.prepare(any()) } returns stmt
+        return conn
+    }
+
+    private fun verifyExecSql(conn: SQLiteConnection, sql: String, exactly: Int = 1) {
+        verify(exactly = exactly) { conn.prepare(sql) }
+    }
+
     // ---------- MIGRATION_1_2 ----------
 
     @Test
     fun `migration 1 to 2 creates timestamp index`() {
-        val db = mockk<SupportSQLiteDatabase>(relaxed = true)
-        CalculatorDatabase.MIGRATION_1_2.migrate(db)
-        verify {
-            db.execSQL(
-                "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
-                    "ON calculation_history(timestamp)",
-            )
-        }
+        val conn = mockConnection()
+        CalculatorDatabase.MIGRATION_1_2.migrate(conn)
+        verifyExecSql(
+            conn,
+            "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
+                "ON calculation_history(timestamp)",
+        )
     }
 
     @Test
@@ -29,30 +47,29 @@ class CalculatorDatabaseMigrationTest {
 
     @Test
     fun `migration 1 to 2 is idempotent (uses IF NOT EXISTS)`() {
-        val db = mockk<SupportSQLiteDatabase>(relaxed = true)
-        CalculatorDatabase.MIGRATION_1_2.migrate(db)
-        CalculatorDatabase.MIGRATION_1_2.migrate(db)
-        verify(exactly = 2) {
-            db.execSQL(
-                "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
-                    "ON calculation_history(timestamp)",
-            )
-        }
+        val conn = mockConnection()
+        CalculatorDatabase.MIGRATION_1_2.migrate(conn)
+        CalculatorDatabase.MIGRATION_1_2.migrate(conn)
+        verifyExecSql(
+            conn,
+            "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
+                "ON calculation_history(timestamp)",
+            exactly = 2,
+        )
     }
 
     // ---------- MIGRATION_2_3 ----------
 
     @Test
     fun `migration 2 to 3 drops old index and creates composite index`() {
-        val db = mockk<SupportSQLiteDatabase>(relaxed = true)
-        CalculatorDatabase.MIGRATION_2_3.migrate(db)
-        verify {
-            db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
-            db.execSQL(
-                "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
-                    "ON calculation_history(timestamp DESC, id DESC)",
-            )
-        }
+        val conn = mockConnection()
+        CalculatorDatabase.MIGRATION_2_3.migrate(conn)
+        verifyExecSql(conn, "DROP INDEX IF EXISTS index_calculation_history_timestamp")
+        verifyExecSql(
+            conn,
+            "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
+                "ON calculation_history(timestamp DESC, id DESC)",
+        )
     }
 
     @Test
@@ -63,15 +80,15 @@ class CalculatorDatabaseMigrationTest {
 
     @Test
     fun `migration 2 to 3 is idempotent`() {
-        val db = mockk<SupportSQLiteDatabase>(relaxed = true)
-        CalculatorDatabase.MIGRATION_2_3.migrate(db)
-        CalculatorDatabase.MIGRATION_2_3.migrate(db)
-        verify(exactly = 2) {
-            db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
-            db.execSQL(
-                "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
-                    "ON calculation_history(timestamp DESC, id DESC)",
-            )
-        }
+        val conn = mockConnection()
+        CalculatorDatabase.MIGRATION_2_3.migrate(conn)
+        CalculatorDatabase.MIGRATION_2_3.migrate(conn)
+        verifyExecSql(conn, "DROP INDEX IF EXISTS index_calculation_history_timestamp", exactly = 2)
+        verifyExecSql(
+            conn,
+            "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
+                "ON calculation_history(timestamp DESC, id DESC)",
+            exactly = 2,
+        )
     }
 }

@@ -4,6 +4,7 @@
 /.idea
 .DS_Store
 /build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
@@ -17,3 +18,8 @@ release-keystore.jks
 .build.lock
 .claude/
 CLAUDE.md
+
+# Static analysis stack:
+# tracked: config/detekt/detekt.yml, config/detekt/detekt-baseline.xml,
+#          config/lint/lint.xml, app/lint-baseline.xml, .editorconfig
+# ignored: ktlint / detekt / lint reports live under build/ (covered above)

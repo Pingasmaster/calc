@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.calculator.app.R
 import com.calculator.app.domain.model.HistoryItem
 import com.calculator.app.ui.theme.segmentedItemShape
+import kotlinx.collections.immutable.ImmutableList
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -51,12 +52,19 @@ import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HistoryBottomSheet(historyItems: List<HistoryItem>, onDismiss: () -> Unit, onItemClick: (String) -> Unit, onClearAll: () -> Unit) {
+fun HistoryBottomSheet(
+    historyItems: ImmutableList<HistoryItem>,
+    onDismiss: () -> Unit,
+    onItemClick: (String) -> Unit,
+    onClearAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     var showClearDialog by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
@@ -244,7 +252,12 @@ private fun ClearHistoryDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HistoryPanel(historyItems: List<HistoryItem>, onItemClick: (String) -> Unit, onClearAll: () -> Unit, modifier: Modifier = Modifier) {
+fun HistoryPanel(
+    historyItems: ImmutableList<HistoryItem>,
+    onItemClick: (String) -> Unit,
+    onClearAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var showClearDialog by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {

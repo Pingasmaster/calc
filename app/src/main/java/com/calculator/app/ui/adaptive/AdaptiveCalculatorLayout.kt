@@ -11,6 +11,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -28,10 +29,18 @@ import com.calculator.app.ui.settings.SettingsSheet
 import com.calculator.app.ui.settings.SettingsViewModel
 
 @Composable
-fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: ThemeSettings) {
-    val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)
-    val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+fun AdaptiveCalculatorLayout(
+    windowSizeClass: WindowSizeClass,
+    themeSettings: ThemeSettings,
+    modifier: Modifier = Modifier,
+    viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory),
+    settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
+) {
     val historyItems by viewModel.history.collectAsStateWithLifecycle()
+    val calcState by viewModel.state.collectAsStateWithLifecycle()
+    val onButtonClick = remember(viewModel) { viewModel::onButtonClick }
+    val onLoadFromHistory = remember(viewModel) { viewModel::loadFromHistory }
+    val onClearHistory = remember(viewModel) { viewModel::clearHistory }
 
     // Flush the debounced SavedStateHandle writes before the Activity hands the
     // outState Bundle to the system. ON_PAUSE fires before onSaveInstanceState
@@ -46,15 +55,15 @@ fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: Th
     when {
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
             Row(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
                     .safeDrawingPadding(),
             ) {
                 HistoryPanel(
                     historyItems = historyItems,
-                    onItemClick = { viewModel.loadFromHistory(it) },
-                    onClearAll = { viewModel.clearHistory() },
+                    onItemClick = onLoadFromHistory,
+                    onClearAll = onClearHistory,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -63,7 +72,9 @@ fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: Th
                 VerticalDivider()
 
                 CalculatorScreen(
-                    viewModel = viewModel,
+                    state = calcState,
+                    expressionField = viewModel.expressionField,
+                    onButtonClick = onButtonClick,
                     onSettingsClick = { showSettings = true },
                     hapticsEnabled = themeSettings.hapticsEnabled,
                     modifier = Modifier
@@ -75,13 +86,15 @@ fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: Th
 
         else -> {
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
                     .safeDrawingPadding(),
             ) {
                 CalculatorScreen(
-                    viewModel = viewModel,
+                    state = calcState,
+                    expressionField = viewModel.expressionField,
+                    onButtonClick = onButtonClick,
                     onDisplayClick = { showHistory = true },
                     onSettingsClick = { showSettings = true },
                     hapticsEnabled = themeSettings.hapticsEnabled,
@@ -93,8 +106,8 @@ fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: Th
                 HistoryBottomSheet(
                     historyItems = historyItems,
                     onDismiss = { showHistory = false },
-                    onItemClick = { viewModel.loadFromHistory(it) },
-                    onClearAll = { viewModel.clearHistory() },
+                    onItemClick = onLoadFromHistory,
+                    onClearAll = onClearHistory,
                 )
             }
         }

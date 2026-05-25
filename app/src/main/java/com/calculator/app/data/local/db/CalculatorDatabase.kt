@@ -3,7 +3,8 @@ package com.calculator.app.data.local.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import com.calculator.app.data.local.db.dao.HistoryDao
 import com.calculator.app.data.local.db.entity.HistoryEntity
 
@@ -17,8 +18,8 @@ abstract class CalculatorDatabase : RoomDatabase() {
 
     companion object {
         val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL(
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
                         "ON calculation_history(timestamp)",
                 )
@@ -31,9 +32,9 @@ abstract class CalculatorDatabase : RoomDatabase() {
          * end-to-end, letting SQLite serve the page without rowid lookups.
          */
         val MIGRATION_2_3: Migration = object : Migration(2, 3) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
-                db.execSQL(
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
+                connection.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
                         "ON calculation_history(timestamp DESC, id DESC)",
                 )
