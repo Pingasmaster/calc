@@ -1,7 +1,7 @@
 package com.calculator.app.ui.theme
 
+import android.app.Activity
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -10,12 +10,10 @@ import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import android.app.Activity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -28,7 +26,7 @@ fun CalculatorTheme(
     oledBlack: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
+    val baseScheme = when {
         dynamicColor -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -38,7 +36,7 @@ fun CalculatorTheme(
     }
 
     val finalColorScheme = if (oledBlack && darkTheme) {
-        colorScheme.copy(
+        baseScheme.copy(
             background = Color.Black,
             surface = Color.Black,
             surfaceDim = Color.Black,
@@ -50,70 +48,41 @@ fun CalculatorTheme(
             surfaceContainerHighest = Color(0xFF2A2A2A),
         )
     } else {
-        colorScheme
+        baseScheme
     }
 
     val motionScheme = MotionScheme.expressive()
-    val colorAnimSpec = remember(motionScheme) { motionScheme.fastEffectsSpec<Color>() }
+    val spec = remember(motionScheme) { motionScheme.fastEffectsSpec<Color>() }
+
+    // Animate only the visible-surface colors so theme switches feel smooth
+    // without paying for 38 simultaneous color animations per recomposition.
+    val animatedScheme = finalColorScheme.copy(
+        surface = animateColorAsState(finalColorScheme.surface, spec).value,
+        background = animateColorAsState(finalColorScheme.background, spec).value,
+        surfaceContainer = animateColorAsState(finalColorScheme.surfaceContainer, spec).value,
+        surfaceContainerHigh = animateColorAsState(finalColorScheme.surfaceContainerHigh, spec).value,
+        surfaceContainerHighest = animateColorAsState(finalColorScheme.surfaceContainerHighest, spec).value,
+        surfaceContainerLow = animateColorAsState(finalColorScheme.surfaceContainerLow, spec).value,
+        surfaceContainerLowest = animateColorAsState(finalColorScheme.surfaceContainerLowest, spec).value,
+        primary = animateColorAsState(finalColorScheme.primary, spec).value,
+    )
 
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
+        DisposableEffect(darkTheme) {
             val window = (view.context as Activity).window
-            window.decorView.setBackgroundColor(finalColorScheme.surface.toArgb())
             val controller = WindowCompat.getInsetsController(window, view)
             controller.isAppearanceLightStatusBars = !darkTheme
             controller.isAppearanceLightNavigationBars = !darkTheme
+            onDispose {}
         }
     }
 
     MaterialExpressiveTheme(
-        colorScheme = finalColorScheme.animated(colorAnimSpec),
+        colorScheme = animatedScheme,
         typography = CalculatorTypography,
         motionScheme = motionScheme,
         shapes = Shapes(),
         content = content,
-    )
-}
-
-@Composable
-private fun ColorScheme.animated(spec: AnimationSpec<Color>): ColorScheme {
-    return copy(
-        primary = animateColorAsState(primary, spec).value,
-        onPrimary = animateColorAsState(onPrimary, spec).value,
-        primaryContainer = animateColorAsState(primaryContainer, spec).value,
-        onPrimaryContainer = animateColorAsState(onPrimaryContainer, spec).value,
-        inversePrimary = animateColorAsState(inversePrimary, spec).value,
-        secondary = animateColorAsState(secondary, spec).value,
-        onSecondary = animateColorAsState(onSecondary, spec).value,
-        secondaryContainer = animateColorAsState(secondaryContainer, spec).value,
-        onSecondaryContainer = animateColorAsState(onSecondaryContainer, spec).value,
-        tertiary = animateColorAsState(tertiary, spec).value,
-        onTertiary = animateColorAsState(onTertiary, spec).value,
-        tertiaryContainer = animateColorAsState(tertiaryContainer, spec).value,
-        onTertiaryContainer = animateColorAsState(onTertiaryContainer, spec).value,
-        background = animateColorAsState(background, spec).value,
-        onBackground = animateColorAsState(onBackground, spec).value,
-        surface = animateColorAsState(surface, spec).value,
-        onSurface = animateColorAsState(onSurface, spec).value,
-        surfaceVariant = animateColorAsState(surfaceVariant, spec).value,
-        onSurfaceVariant = animateColorAsState(onSurfaceVariant, spec).value,
-        surfaceTint = animateColorAsState(surfaceTint, spec).value,
-        inverseSurface = animateColorAsState(inverseSurface, spec).value,
-        inverseOnSurface = animateColorAsState(inverseOnSurface, spec).value,
-        error = animateColorAsState(error, spec).value,
-        onError = animateColorAsState(onError, spec).value,
-        errorContainer = animateColorAsState(errorContainer, spec).value,
-        onErrorContainer = animateColorAsState(onErrorContainer, spec).value,
-        outline = animateColorAsState(outline, spec).value,
-        outlineVariant = animateColorAsState(outlineVariant, spec).value,
-        scrim = animateColorAsState(scrim, spec).value,
-        surfaceBright = animateColorAsState(surfaceBright, spec).value,
-        surfaceDim = animateColorAsState(surfaceDim, spec).value,
-        surfaceContainer = animateColorAsState(surfaceContainer, spec).value,
-        surfaceContainerHigh = animateColorAsState(surfaceContainerHigh, spec).value,
-        surfaceContainerHighest = animateColorAsState(surfaceContainerHighest, spec).value,
-        surfaceContainerLow = animateColorAsState(surfaceContainerLow, spec).value,
-        surfaceContainerLowest = animateColorAsState(surfaceContainerLowest, spec).value,
     )
 }

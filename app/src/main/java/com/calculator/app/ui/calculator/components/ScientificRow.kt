@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,16 +40,18 @@ fun ScientificRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             scientificRow.forEach { btn ->
-                val interactionSource = remember { MutableInteractionSource() }
-                CalculatorButtonView(
-                    button = btn,
-                    onClick = { onButtonClick(btn.symbol) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .animateWidth(interactionSource),
-                    onLongClick = if (btn.category == ButtonCategory.BACKSPACE) onLongPressBackspace else null,
-                    interactionSource = interactionSource,
-                )
+                key(btn.symbol) {
+                    val interactionSource = remember { MutableInteractionSource() }
+                    CalculatorButtonView(
+                        button = btn,
+                        onClick = { onButtonClick(btn.symbol) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .animateWidth(interactionSource),
+                        onLongClick = if (btn.category == ButtonCategory.BACKSPACE) onLongPressBackspace else null,
+                        interactionSource = interactionSource,
+                    )
+                }
             }
         }
     }

@@ -36,8 +36,16 @@ class CalculatorViewModelTest {
         Dispatchers.setMain(testDispatcher)
         historyRepo = mockk(relaxed = true)
         coEvery { historyRepo.observeHistory() } returns flowOf(emptyList())
-        viewModel = CalculatorViewModel(historyRepo, SavedStateHandle())
+        viewModel = newViewModel(SavedStateHandle())
     }
+
+    private fun newViewModel(handle: SavedStateHandle): CalculatorViewModel =
+        CalculatorViewModel(
+            historyRepo = historyRepo,
+            savedStateHandle = handle,
+            previewDispatcher = testDispatcher,
+            previewDebounceMs = 0L,
+        )
 
     @After
     fun tearDown() {
@@ -415,7 +423,7 @@ class CalculatorViewModelTest {
     @Test
     fun `state is saved to SavedStateHandle`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
 
         vm.onButtonClick("4")
         vm.onButtonClick("2")
@@ -434,7 +442,7 @@ class CalculatorViewModelTest {
                 "isResultDisplayed" to false,
             )
         )
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
 
         assertEquals("12+3", vm.state.value.expression)
         assertEquals("12+3", vm.state.value.displayText)
@@ -474,7 +482,7 @@ class CalculatorViewModelTest {
     @Test
     fun `isError is saved to SavedStateHandle`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
 
         vm.onButtonClick("1")
         vm.onButtonClick("÷")
@@ -496,7 +504,7 @@ class CalculatorViewModelTest {
                 "isError" to true,
             )
         )
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
 
         assertTrue(vm.state.value.isError)
         assertEquals("Error", vm.state.value.displayText)
@@ -513,7 +521,7 @@ class CalculatorViewModelTest {
                 "isError" to true,
             )
         )
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         vm.onButtonClick("+")
 
         assertFalse(vm.state.value.expression.contains("Error"))
@@ -1013,7 +1021,7 @@ class CalculatorViewModelTest {
     @Test
     fun `AC persists cleared state`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         vm.onButtonClick("5")
         vm.onButtonClick("AC")
         assertEquals("", handle["expression"])
@@ -1067,7 +1075,7 @@ class CalculatorViewModelTest {
     @Test
     fun `loadFromHistory saves state`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         vm.loadFromHistory("1+2")
         assertEquals("1+2", handle["expression"])
     }
@@ -1084,14 +1092,14 @@ class CalculatorViewModelTest {
                 "isError" to false,
             )
         )
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         assertEquals(2, vm.state.value.openParenCount)
     }
 
     @Test
     fun `restore with partial handle uses defaults`() {
         val handle = SavedStateHandle(mapOf("expression" to "42"))
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         assertEquals("42", vm.state.value.expression)
         assertEquals("0", vm.state.value.displayText) // missing KEY_DISPLAY → default
         assertFalse(vm.state.value.isResultDisplayed)
@@ -1101,7 +1109,7 @@ class CalculatorViewModelTest {
     @Test
     fun `isResultDisplayed persists`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         vm.onButtonClick("5")
         vm.onButtonClick("=")
         assertEquals(true, handle["isResultDisplayed"])
@@ -1110,7 +1118,7 @@ class CalculatorViewModelTest {
     @Test
     fun `after result saveState stores result expression not live field`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         vm.onButtonClick("(")
         vm.onButtonClick("2")
         vm.onButtonClick("+")
@@ -1133,7 +1141,7 @@ class CalculatorViewModelTest {
     @Test
     fun `default construction yields initial state`() {
         val handle = SavedStateHandle()
-        val vm = CalculatorViewModel(historyRepo, handle)
+        val vm = newViewModel(handle)
         assertEquals("", vm.state.value.expression)
         assertEquals("0", vm.state.value.displayText)
         assertEquals(0, vm.state.value.openParenCount)

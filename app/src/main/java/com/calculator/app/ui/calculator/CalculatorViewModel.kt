@@ -18,10 +18,20 @@ import com.calculator.app.CalculatorApplication
 import com.calculator.app.data.repository.HistoryRepository
 import com.calculator.app.domain.engine.CalculatorEngine
 import com.calculator.app.domain.model.CalculatorState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,6 +40,8 @@ class CalculatorViewModel(
     private val historyRepo: HistoryRepository,
     private val savedStateHandle: SavedStateHandle,
     private val engine: CalculatorEngine = CalculatorEngine(),
+    private val previewDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val previewDebounceMs: Long = PREVIEW_DEBOUNCE_MS,
 ) : ViewModel() {
 
     companion object {
@@ -37,6 +49,9 @@ class CalculatorViewModel(
         private const val KEY_DISPLAY = "displayText"
         private const val KEY_RESULT_DISPLAYED = "isResultDisplayed"
         private const val KEY_IS_ERROR = "isError"
+
+        /** Coalesce rapid typing into one engine evaluation per ~50 ms. */
+        const val PREVIEW_DEBOUNCE_MS: Long = 50L
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -69,6 +84,44 @@ class CalculatorViewModel(
     val history = historyRepo.observeHistory()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // Each input method pushes the new expression here; the pipeline below
+    // debounces, evaluates on [previewDispatcher], and writes the preview back
+    // to `_state`. mapLatest cancels stale work when the user keeps typing.
+    private val pendingExpression = MutableStateFlow(expressionField.text.toString())
+
+    init {
+        startPreviewPipeline()
+    }
+
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    private fun startPreviewPipeline() {
+        viewModelScope.launch {
+            val suppressFlow = _state
+                .map { it.isResultDisplayed || it.isError }
+                .distinctUntilChanged()
+
+            combine(pendingExpression, suppressFlow) { text, suppress -> text to suppress }
+                .debounce(previewDebounceMs)
+                .mapLatest { (text, suppress) ->
+                    if (text.isEmpty() || suppress) {
+                        ""
+                    } else {
+                        val closedExpr = text + ")".repeat(parenCount(text))
+                        engine.evaluate(closedExpr).getOrNull() ?: ""
+                    }
+                }
+                .flowOn(previewDispatcher)
+                .distinctUntilChanged()
+                .collect { preview ->
+                    _state.update { it.copy(previewResult = preview) }
+                }
+        }
+    }
+
+    private fun publishExpression() {
+        pendingExpression.value = expression
+    }
+
     private val operators = setOf("+", "−", "×", "÷")
 
     private val expression: String get() = expressionField.text.toString()
@@ -96,6 +149,8 @@ class CalculatorViewModel(
         savedStateHandle[KEY_DISPLAY] = s.displayText
         savedStateHandle[KEY_RESULT_DISPLAYED] = s.isResultDisplayed
         savedStateHandle[KEY_IS_ERROR] = s.isError
+        // Publish the current expression to the preview pipeline.
+        publishExpression()
     }
 
     fun onButtonClick(symbol: String) {
@@ -137,7 +192,6 @@ class CalculatorViewModel(
             syncState()
         }
         saveState()
-        updatePreview()
     }
 
     private fun appendOperator(op: String) {
@@ -184,7 +238,6 @@ class CalculatorViewModel(
             syncState()
         }
         saveState()
-        updatePreview()
     }
 
     private fun appendConstant(constant: String) {
@@ -201,7 +254,6 @@ class CalculatorViewModel(
             syncState()
         }
         saveState()
-        updatePreview()
     }
 
     private fun appendSqrt() {
@@ -218,7 +270,6 @@ class CalculatorViewModel(
             syncState()
         }
         saveState()
-        updatePreview()
     }
 
     private fun appendToExpression(symbol: String) {
@@ -244,7 +295,6 @@ class CalculatorViewModel(
             syncState()
         }
         saveState()
-        updatePreview()
     }
 
     private fun toggleParentheses() {
@@ -254,7 +304,6 @@ class CalculatorViewModel(
             expressionField.setTextAndPlaceCursorAtEnd("(")
             _state.update { CalculatorState(expression = "(", displayText = "(", openParenCount = 1) }
             saveState()
-            updatePreview()
             return
         }
 
@@ -286,7 +335,6 @@ class CalculatorViewModel(
         }
         syncState()
         saveState()
-        updatePreview()
     }
 
     private fun onEquals() {
@@ -365,26 +413,6 @@ class CalculatorViewModel(
         }
         syncState()
         saveState()
-        updatePreview()
-    }
-
-    private fun updatePreview() {
-        val expr = expression
-        if (expr.isEmpty() || _state.value.isResultDisplayed) {
-            _state.update { it.copy(previewResult = "") }
-            return
-        }
-
-        val closedExpr = expr + ")".repeat(parenCount())
-
-        engine.evaluate(closedExpr).fold(
-            onSuccess = { preview ->
-                _state.update { it.copy(previewResult = preview) }
-            },
-            onFailure = {
-                _state.update { it.copy(previewResult = "") }
-            },
-        )
     }
 
     fun clearHistory() {
@@ -405,6 +433,5 @@ class CalculatorViewModel(
             )
         }
         saveState()
-        updatePreview()
     }
 }

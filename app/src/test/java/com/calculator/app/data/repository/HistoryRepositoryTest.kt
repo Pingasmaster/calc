@@ -26,7 +26,7 @@ class HistoryRepositoryTest {
         var deletedIds = mutableListOf<Long>()
             private set
 
-        override fun observeAll(): Flow<List<HistoryEntity>> = entries.asStateFlow()
+        override fun observeAll(limit: Int): Flow<List<HistoryEntity>> = entries.asStateFlow()
 
         override suspend fun insert(entry: HistoryEntity) {
             insertCount++

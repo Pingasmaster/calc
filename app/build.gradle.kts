@@ -13,15 +13,18 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 43
-        versionName = "1.0.42"
+        versionCode = 46
+        versionName = "1.0.45"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -40,6 +43,45 @@ android {
     buildFeatures {
         compose = true
         buildConfig = false
+    }
+
+    composeCompiler {
+        // Generates per-class stability/skippability reports under build/compose-reports
+        // when explicitly requested via -Pcompose.reports=true (kept off by default to
+        // avoid extra compile time on regular builds).
+        if (project.findProperty("compose.reports") == "true") {
+            reportsDestination = layout.buildDirectory.dir("compose-reports")
+            metricsDestination = layout.buildDirectory.dir("compose-metrics")
+        }
+    }
+
+    packaging {
+        resources {
+            // Strip duplicated LICENSE files, Kotlin reflection metadata we don't use,
+            // and the kotlinx-coroutines debug-probes artifact (release-only waste).
+            excludes += setOf(
+                "META-INF/*.txt",
+                "META-INF/LICENSE*",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/androidx/**/LICENSE.txt",
+                "META-INF/versions/**",
+                "DebugProbesKt.bin",
+            )
+        }
+    }
+
+    // Debug-signed release APK never goes to Play; the dependency-info blob
+    // AGP injects for Play upload is pure overhead here.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    lint {
+        checkReleaseBuilds = true
+        abortOnError = true
+        warningsAsErrors = false
     }
 
     testOptions {
@@ -91,6 +133,12 @@ dependencies {
 
     // Core KTX
     implementation(libs.core.ktx)
+
+    // Splash screen API (Android 12+ system splash)
+    implementation(libs.core.splashscreen)
+
+    // Baseline profile installer (loads assets/dexopt/baseline.prof on first run)
+    implementation(libs.profileinstaller)
 
     // Testing
     testImplementation(libs.junit)

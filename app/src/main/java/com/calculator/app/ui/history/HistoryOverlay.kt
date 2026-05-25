@@ -25,12 +25,14 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,9 +44,10 @@ import androidx.compose.ui.res.stringResource
 import com.calculator.app.R
 import com.calculator.app.domain.model.HistoryItem
 import com.calculator.app.ui.theme.segmentedItemShape
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -54,7 +57,7 @@ fun HistoryBottomSheet(
     onItemClick: (String) -> Unit,
     onClearAll: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     var showClearDialog by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
@@ -85,6 +88,7 @@ fun HistoryBottomSheet(
                         )
                     }
                 } else {
+                    val dateFormatter = rememberHistoryDateFormatter()
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -99,6 +103,7 @@ fun HistoryBottomSheet(
                                 item = item,
                                 index = index,
                                 total = historyItems.size,
+                                dateFormatter = dateFormatter,
                                 onClick = {
                                     onItemClick(item.expression)
                                     onDismiss()
@@ -150,6 +155,7 @@ private fun HistoryListItem(
     item: HistoryItem,
     index: Int,
     total: Int,
+    dateFormatter: DateTimeFormatter,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -161,7 +167,7 @@ private fun HistoryListItem(
         ListItem(
             overlineContent = {
                 Text(
-                    text = formatTimestamp(item.timestamp),
+                    text = dateFormatter.formatEpochMillis(item.timestamp),
                     style = MaterialTheme.typography.labelSmall,
                 )
             },
@@ -193,10 +199,25 @@ private fun HistoryListItem(
     }
 }
 
-private fun formatTimestamp(timestamp: Long): String {
-    val sdf = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+/**
+ * Builds a [DateTimeFormatter] from the current Compose configuration's locale.
+ * Java.time formatters are immutable + thread-safe and the `remember` key picks
+ * up locale config changes — no per-row [java.text.SimpleDateFormat] allocation.
+ */
+@Composable
+private fun rememberHistoryDateFormatter(): DateTimeFormatter {
+    val locale = LocalConfiguration.current.locales[0]
+    val zoneId = ZoneId.systemDefault()
+    return remember(locale, zoneId) {
+        DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT)
+            .withLocale(locale)
+            .withZone(zoneId)
+    }
 }
+
+private fun DateTimeFormatter.formatEpochMillis(timestamp: Long): String =
+    format(Instant.ofEpochMilli(timestamp))
 
 @Composable
 private fun ClearHistoryDialog(
@@ -263,6 +284,7 @@ fun HistoryPanel(
                     )
                 }
             } else {
+                val dateFormatter = rememberHistoryDateFormatter()
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -279,6 +301,7 @@ fun HistoryPanel(
                             item = item,
                             index = index,
                             total = historyItems.size,
+                            dateFormatter = dateFormatter,
                             onClick = { onItemClick(item.expression) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
