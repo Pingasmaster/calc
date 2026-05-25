@@ -13,8 +13,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 55
-        versionName = "1.0.54"
+        versionCode = 56
+        versionName = "1.0.55"
     }
 
     buildTypes {
@@ -68,6 +68,17 @@ android {
                 "META-INF/versions/**",
                 "**/*.kotlin_module",
                 "DebugProbesKt.bin",
+            )
+        }
+        jniLibs {
+            // These prebuilt AAR-shipped .so files can't be re-stripped by AGP's
+            // strip tool. Telling AGP to keep their debug symbols (i.e. not
+            // attempt the strip pass at all) is functionally identical to the
+            // current "packaged as-is" fallback and silences the noisy
+            // "Unable to strip the following libraries" build messages.
+            keepDebugSymbols += setOf(
+                "**/libandroidx.graphics.path.so",
+                "**/libdatastore_shared_counter.so",
             )
         }
     }
