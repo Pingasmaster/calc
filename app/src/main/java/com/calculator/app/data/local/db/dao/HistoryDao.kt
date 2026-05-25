@@ -30,7 +30,7 @@ interface HistoryDao {
         DELETE FROM calculation_history WHERE id NOT IN (
             SELECT id FROM calculation_history ORDER BY timestamp DESC, id DESC LIMIT :keepCount
         )
-        """
+        """,
     )
     suspend fun trimToSize(keepCount: Int = 100)
 

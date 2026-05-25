@@ -1,8 +1,10 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("com.google.devtools.ksp")
-    id("androidx.room")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -13,8 +15,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 56
-        versionName = "1.0.55"
+        versionCode = 57
+        versionName = "1.0.56"
     }
 
     buildTypes {
@@ -91,9 +93,17 @@ android {
     }
 
     lint {
-        checkReleaseBuilds = true
         abortOnError = true
         warningsAsErrors = false
+        checkDependencies = true
+        checkReleaseBuilds = true
+        explainIssues = true
+        showAll = true
+        htmlReport = true
+        xmlReport = true
+        sarifReport = true
+        baseline = file("lint-baseline.xml")
+        lintConfig = rootProject.file("config/lint/lint.xml")
         // We intentionally ship the adaptive launcher icon at only xxhdpi+xxxhdpi
         // (minSdk=33 universally supports adaptive icons; lower-density rasters
         // were dead weight). Don't flag the missing folders.
@@ -103,6 +113,27 @@ android {
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
+}
+
+ktlint {
+    version.set(libs.versions.ktlint.engine.get())
+    android.set(true)
+    ignoreFailures.set(false)
+    filter {
+        exclude { it.file.path.contains("/build/") }
+    }
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
+    }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(rootProject.files("config/detekt/detekt.yml"))
+    baseline = rootProject.file("config/detekt/detekt-baseline.xml")
+    parallel = true
 }
 
 room {
@@ -162,4 +193,8 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.room.testing)
+
+    detektPlugins(libs.detekt.compose)
+    lintChecks(libs.lint.slack.checks)
+    lintChecks(libs.lint.slack.compose)
 }

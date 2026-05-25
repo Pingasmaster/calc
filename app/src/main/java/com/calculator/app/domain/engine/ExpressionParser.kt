@@ -36,15 +36,24 @@ object ExpressionParser {
                         val top = stack.last()
                         val shouldPop = when {
                             top is Token.Function && top.name != "!" -> true
+
                             top is Token.UnaryMinus -> true
+
                             top is Token.Operator -> {
-                                if (token.isRightAssoc) top.precedence > token.precedence
-                                else top.precedence >= token.precedence
+                                if (token.isRightAssoc) {
+                                    top.precedence > token.precedence
+                                } else {
+                                    top.precedence >= token.precedence
+                                }
                             }
+
                             else -> false
                         }
-                        if (shouldPop) output.add(stack.removeLast())
-                        else break
+                        if (shouldPop) {
+                            output.add(stack.removeLast())
+                        } else {
+                            break
+                        }
                     }
                     stack.addLast(token)
                 }
@@ -80,8 +89,7 @@ object ExpressionParser {
 
     private val HUNDRED = BigDecimal(100)
 
-    private fun StackVal.asDecimal(): BigDecimal =
-        if (isPercent) v.divide(HUNDRED, MC) else v
+    private fun StackVal.asDecimal(): BigDecimal = if (isPercent) v.divide(HUNDRED, MC) else v
 
     fun evaluatePostfix(postfix: List<Token>): BigDecimal {
         val stack = ArrayDeque<StackVal>()
@@ -98,18 +106,26 @@ object ExpressionParser {
                     val a = stack.removeLast().asDecimal()
                     val b = when (token.op) {
                         "+", "-" ->
-                            if (bRaw.isPercent) a.multiply(bRaw.v, MC).divide(HUNDRED, MC)
-                            else bRaw.v
+                            if (bRaw.isPercent) {
+                                a.multiply(bRaw.v, MC).divide(HUNDRED, MC)
+                            } else {
+                                bRaw.v
+                            }
+
                         else -> bRaw.asDecimal()
                     }
                     val result = when (token.op) {
                         "+" -> a.add(b, MC)
+
                         "-" -> a.subtract(b, MC)
+
                         "*" -> a.multiply(b, MC)
+
                         "/" -> {
                             if (b.compareTo(BigDecimal.ZERO) == 0) throw ArithmeticException("Division by zero")
                             a.divide(b, MC)
                         }
+
                         else -> throw IllegalArgumentException("Unknown operator: ${token.op}")
                     }
                     stack.addLast(StackVal(result))
@@ -137,11 +153,13 @@ object ExpressionParser {
                             if (value < BigDecimal.ZERO) throw ArithmeticException("Square root of negative number")
                             stack.addLast(StackVal(value.sqrt(MC)))
                         }
+
                         "!" -> {
                             if (stack.isEmpty()) throw ArithmeticException("Invalid expression")
                             val value = stack.removeLast().asDecimal()
                             stack.addLast(StackVal(factorial(value)))
                         }
+
                         else -> throw IllegalArgumentException("Unknown function: ${token.name}")
                     }
                 }

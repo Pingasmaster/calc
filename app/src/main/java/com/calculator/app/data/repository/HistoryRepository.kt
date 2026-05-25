@@ -13,10 +13,9 @@ class HistoryRepository(private val historyDao: HistoryDao) {
         private const val MAX_HISTORY_ENTRIES = 100
     }
 
-    fun observeHistory(): Flow<List<HistoryItem>> =
-        historyDao.observeAll(MAX_HISTORY_ENTRIES)
-            .distinctUntilChanged()
-            .map { entities -> entities.map { it.toDomain() } }
+    fun observeHistory(): Flow<List<HistoryItem>> = historyDao.observeAll(MAX_HISTORY_ENTRIES)
+        .distinctUntilChanged()
+        .map { entities -> entities.map { it.toDomain() } }
 
     suspend fun addEntry(expression: String, result: String) {
         historyDao.insertAndTrim(

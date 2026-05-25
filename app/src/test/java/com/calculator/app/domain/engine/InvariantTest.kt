@@ -13,12 +13,15 @@ class InvariantTest {
         val kind = rng.nextInt(4)
         return when (kind) {
             0 -> rng.nextInt(0, 1000).toString()
+
             1 -> {
                 val whole = rng.nextInt(0, 100)
                 val frac = rng.nextInt(0, 100).toString().padStart(2, '0')
                 "$whole.$frac"
             }
+
             2 -> "\u03C0"
+
             else -> "e"
         }
     }
@@ -38,8 +41,9 @@ class InvariantTest {
         repeat(500) {
             val expr = randomWellFormed(rng)
             val result = engine.evaluate(expr)
-            if (result.isFailure) failures++
-            else {
+            if (result.isFailure) {
+                failures++
+            } else {
                 // Must parse as a BigDecimal.
                 runCatching { BigDecimal(result.getOrNull()) }.getOrThrow()
             }
@@ -116,7 +120,7 @@ class InvariantTest {
             var b = rng.nextInt(-1_000, 1_001)
             if (b == 0) b = 1
             val result = engine.evaluate("($a\u00D7$b)\u00F7$b")
-            assertTrue("(${a}*${b})/${b} failed", result.isSuccess)
+            assertTrue("($a*$b)/$b failed", result.isSuccess)
             val got = BigDecimal(result.getOrNull())
             val expected = BigDecimal(a)
             // High precision integer division chain: should be exact.

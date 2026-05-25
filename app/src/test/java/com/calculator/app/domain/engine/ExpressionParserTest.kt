@@ -17,7 +17,8 @@ class ExpressionParserTest {
     private fun assertValueEquals(expected: String, actual: BigDecimal) {
         assertEquals(
             "Expected $expected but was ${actual.toPlainString()}",
-            0, BigDecimal(expected).compareTo(actual),
+            0,
+            BigDecimal(expected).compareTo(actual),
         )
     }
 

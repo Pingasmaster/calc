@@ -40,11 +40,13 @@ class CalculatorEngine {
                     intStr
                 }
             }
+
             num.scale() > MAX_DISPLAY_DECIMAL_PLACES -> {
                 num = num.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
                     .stripTrailingZeros()
                 num.toPlainString()
             }
+
             else -> num.toPlainString()
         }
     }

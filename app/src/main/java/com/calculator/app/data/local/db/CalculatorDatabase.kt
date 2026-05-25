@@ -20,7 +20,7 @@ abstract class CalculatorDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
-                            "ON calculation_history(timestamp)"
+                        "ON calculation_history(timestamp)",
                 )
             }
         }
@@ -35,7 +35,7 @@ abstract class CalculatorDatabase : RoomDatabase() {
                 db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
-                            "ON calculation_history(timestamp DESC, id DESC)"
+                        "ON calculation_history(timestamp DESC, id DESC)",
                 )
             }
         }

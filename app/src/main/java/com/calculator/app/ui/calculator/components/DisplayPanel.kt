@@ -25,11 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import com.calculator.app.R
 import com.calculator.app.domain.model.CalculatorState
 
@@ -38,11 +38,7 @@ private const val TEXT_LENGTH_MEDIUM_THRESHOLD = 8
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun DisplayPanel(
-    state: CalculatorState,
-    expressionField: TextFieldState,
-    modifier: Modifier = Modifier,
-) {
+fun DisplayPanel(state: CalculatorState, expressionField: TextFieldState, modifier: Modifier = Modifier) {
     val isEditing = !state.isResultDisplayed && !state.isError
     val expressionText = if (state.isResultDisplayed) state.expression else ""
     val previewText = state.previewResult
@@ -66,7 +62,7 @@ fun DisplayPanel(
             transitionSpec = {
                 (slideInVertically(spatialSpec) { -it } + fadeIn(effectsSpec))
                     .togetherWith(
-                        slideOutVertically(spatialSpec) { it } + fadeOut(effectsSpec)
+                        slideOutVertically(spatialSpec) { it } + fadeOut(effectsSpec),
                     )
             },
             label = "expression",

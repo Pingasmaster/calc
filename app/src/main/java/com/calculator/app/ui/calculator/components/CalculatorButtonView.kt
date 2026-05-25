@@ -35,10 +35,7 @@ import com.calculator.app.ui.theme.buttonLarge
 import com.calculator.app.ui.theme.buttonMedium
 import com.calculator.app.ui.theme.buttonSmall
 
-data class ButtonColors(
-    val containerColor: Color,
-    val contentColor: Color,
-)
+data class ButtonColors(val containerColor: Color, val contentColor: Color)
 
 @Composable
 fun rememberButtonColors(category: ButtonCategory): ButtonColors {
@@ -49,26 +46,32 @@ fun rememberButtonColors(category: ButtonCategory): ButtonColors {
                 containerColor = colorScheme.surfaceContainerHigh,
                 contentColor = colorScheme.onSurface,
             )
+
             ButtonCategory.OPERATOR -> ButtonColors(
                 containerColor = colorScheme.secondaryContainer,
                 contentColor = colorScheme.onSecondaryContainer,
             )
+
             ButtonCategory.FUNCTION -> ButtonColors(
                 containerColor = colorScheme.tertiaryContainer,
                 contentColor = colorScheme.onTertiaryContainer,
             )
+
             ButtonCategory.AC -> ButtonColors(
                 containerColor = colorScheme.surfaceContainerHighest,
                 contentColor = colorScheme.onSurface,
             )
+
             ButtonCategory.EQUALS -> ButtonColors(
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary,
             )
+
             ButtonCategory.SCIENTIFIC -> ButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = colorScheme.onSurfaceVariant,
             )
+
             ButtonCategory.BACKSPACE -> ButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = colorScheme.onSurfaceVariant,
@@ -107,7 +110,9 @@ fun CalculatorButtonView(
     val onLongClickHandler: (() -> Unit)? = remember(onLongClick) {
         if (onLongClick != null) {
             { onLongClick() }
-        } else null
+        } else {
+            null
+        }
     }
 
     when (button.category) {

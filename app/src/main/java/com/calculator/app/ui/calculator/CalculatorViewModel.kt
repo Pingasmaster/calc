@@ -92,7 +92,7 @@ class CalculatorViewModel(
                 isResultDisplayed = savedStateHandle[KEY_RESULT_DISPLAYED] ?: false,
                 isError = savedStateHandle[KEY_IS_ERROR] ?: false,
             )
-        }
+        },
     )
     val state: StateFlow<CalculatorState> = _state.asStateFlow()
 
@@ -396,10 +396,10 @@ class CalculatorViewModel(
         val charBefore = if (pos > 0 && text.isNotEmpty()) text[pos - 1] else null
 
         val shouldClose = parenCount() > 0 &&
-                text.isNotEmpty() &&
-                charBefore != null &&
-                charBefore.toString() !in operators &&
-                charBefore != '('
+            text.isNotEmpty() &&
+            charBefore != null &&
+            charBefore.toString() !in operators &&
+            charBefore != '('
 
         if (shouldClose) {
             expressionField.edit {
@@ -407,7 +407,12 @@ class CalculatorViewModel(
                 selection = TextRange(pos + 1)
             }
         } else {
-            val prefix = if (charBefore != null && (charBefore.isDigit() || charBefore == ')' || charBefore == 'π' || charBefore == 'e' || charBefore == '%' || charBefore == '!')) {
+            val prefix = if (charBefore != null &&
+                (
+                    charBefore.isDigit() || charBefore == ')' || charBefore == 'π' || charBefore == 'e' || charBefore == '%' ||
+                        charBefore == '!'
+                    )
+            ) {
                 "×("
             } else {
                 "("
