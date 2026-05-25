@@ -44,8 +44,8 @@ class InvariantTest {
             if (result.isFailure) {
                 failures++
             } else {
-                // Must parse as a BigDecimal.
-                runCatching { BigDecimal(result.getOrNull()) }.getOrThrow()
+                // Must parse as a BigDecimal — propagates if not.
+                BigDecimal(result.getOrThrow())
             }
         }
         // Division-free grammar: zero failures expected.
@@ -61,8 +61,9 @@ class InvariantTest {
             val sb = StringBuilder()
             repeat(len) { sb.append(charset.random(rng)) }
             val str = sb.toString()
-            // Never throws: evaluate must swallow any exception into Result.
-            runCatching { engine.evaluate(str) }.getOrThrow()
+            // Never throws: evaluate must swallow any exception into Result —
+            // any uncaught throw here would fail the test.
+            engine.evaluate(str)
         }
     }
 

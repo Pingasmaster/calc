@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION") // Newer ButtonGroup overload uses non-composable content builder; not usable for composable button content
-
 package com.calculator.app.ui.calculator.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,25 +41,46 @@ fun ButtonGrid(onButtonClick: (String) -> Unit, modifier: Modifier = Modifier, h
                     else -> rowHeight
                 }
 
+                // New ButtonGroup builder API (Material3 1.5.0-alpha20):
+                // overflowIndicator(menuState) + verticalAlignment + non-Composable
+                // ButtonGroupScope with customItem. Capture the scope so we can
+                // apply ButtonGroupScope.weight / animateWidth modifiers inside
+                // each customItem's @Composable content (which has no
+                // ButtonGroupScope receiver of its own).
+                //
+                // Suppress slack-lints DeprecatedCall: this call resolves to the
+                // third (non-deprecated) ButtonGroup overload — kotlinc emits no
+                // deprecation warning. slack-lints flags by function name, not
+                // by resolved target, so any call to a ButtonGroup overload is
+                // marked as long as some other overload is @Deprecated.
+                // overflowIndicator: rows are sized to fit; never overflow.
+                @Suppress("DeprecatedCall")
                 ButtonGroup(
+                    overflowIndicator = { _ -> },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(currentRowHeight),
                     horizontalArrangement = Arrangement.spacedBy(spacing),
                 ) {
+                    val scope = this
                     row.forEach { btn ->
-                        key(btn.symbol) {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            CalculatorButtonView(
-                                button = btn,
-                                onClick = { onButtonClick(btn.symbol) },
-                                modifier = Modifier
-                                    .weight(btn.widthWeight)
-                                    .animateWidth(interactionSource),
-                                interactionSource = interactionSource,
-                                hapticsEnabled = hapticsEnabled,
-                            )
-                        }
+                        customItem(
+                            buttonGroupContent = {
+                                val interactionSource = remember { MutableInteractionSource() }
+                                CalculatorButtonView(
+                                    button = btn,
+                                    onClick = { onButtonClick(btn.symbol) },
+                                    modifier = with(scope) {
+                                        Modifier
+                                            .weight(btn.widthWeight)
+                                            .animateWidth(interactionSource)
+                                    },
+                                    interactionSource = interactionSource,
+                                    hapticsEnabled = hapticsEnabled,
+                                )
+                            },
+                            menuContent = { },
+                        )
                     }
                 }
             }

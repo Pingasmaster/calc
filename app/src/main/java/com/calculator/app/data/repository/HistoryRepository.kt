@@ -3,6 +3,8 @@ package com.calculator.app.data.repository
 import com.calculator.app.data.local.db.dao.HistoryDao
 import com.calculator.app.data.local.db.entity.HistoryEntity
 import com.calculator.app.domain.model.HistoryItem
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -13,9 +15,9 @@ class HistoryRepository(private val historyDao: HistoryDao) {
         private const val MAX_HISTORY_ENTRIES = 100
     }
 
-    fun observeHistory(): Flow<List<HistoryItem>> = historyDao.observeAll(MAX_HISTORY_ENTRIES)
+    fun observeHistory(): Flow<ImmutableList<HistoryItem>> = historyDao.observeAll(MAX_HISTORY_ENTRIES)
         .distinctUntilChanged()
-        .map { entities -> entities.map { it.toDomain() } }
+        .map { entities -> entities.map { it.toDomain() }.toImmutableList() }
 
     suspend fun addEntry(expression: String, result: String) {
         historyDao.insertAndTrim(

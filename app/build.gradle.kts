@@ -15,8 +15,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 57
-        versionName = "1.0.56"
+        versionCode = 58
+        versionName = "1.0.57"
     }
 
     buildTypes {
@@ -177,6 +177,9 @@ dependencies {
 
     // Coroutines
     implementation(libs.coroutines.android)
+
+    // Immutable collections (stable Compose params for List/Set types)
+    implementation(libs.collections.immutable)
 
     // Core KTX
     implementation(libs.core.ktx)
