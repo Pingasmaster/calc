@@ -25,12 +25,7 @@ private val Context.dataStore by preferencesDataStore(
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
-data class ThemeSettings(
-    val themeMode: ThemeMode,
-    val dynamicColor: Boolean,
-    val oledBlack: Boolean,
-    val hapticsEnabled: Boolean,
-) {
+data class ThemeSettings(val themeMode: ThemeMode, val dynamicColor: Boolean, val oledBlack: Boolean, val hapticsEnabled: Boolean) {
     companion object {
         val Default = ThemeSettings(
             themeMode = ThemeMode.SYSTEM,

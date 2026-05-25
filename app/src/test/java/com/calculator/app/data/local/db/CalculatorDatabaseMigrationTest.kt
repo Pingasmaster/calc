@@ -16,7 +16,7 @@ class CalculatorDatabaseMigrationTest {
         verify {
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
-                        "ON calculation_history(timestamp)"
+                    "ON calculation_history(timestamp)",
             )
         }
     }
@@ -35,7 +35,7 @@ class CalculatorDatabaseMigrationTest {
         verify(exactly = 2) {
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp " +
-                        "ON calculation_history(timestamp)"
+                    "ON calculation_history(timestamp)",
             )
         }
     }
@@ -50,7 +50,7 @@ class CalculatorDatabaseMigrationTest {
             db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
-                        "ON calculation_history(timestamp DESC, id DESC)"
+                    "ON calculation_history(timestamp DESC, id DESC)",
             )
         }
     }
@@ -70,7 +70,7 @@ class CalculatorDatabaseMigrationTest {
             db.execSQL("DROP INDEX IF EXISTS index_calculation_history_timestamp")
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS index_calculation_history_timestamp_id " +
-                        "ON calculation_history(timestamp DESC, id DESC)"
+                    "ON calculation_history(timestamp DESC, id DESC)",
             )
         }
     }

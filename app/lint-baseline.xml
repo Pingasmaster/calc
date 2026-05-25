@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="65"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!.toDouble()"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="191"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!.toDouble()"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="200"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!.toDouble()"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="215"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val v = result.getOrNull()!!"
+        errorLine2="                                  ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="248"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="349"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="381"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="389"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = result.getOrNull()!!"
+        errorLine2="                                      ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="411"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        val value = engine.evaluate(&quot;1/11&quot;).getOrNull()!!"
+        errorLine2="                                                       ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="444"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        assertTrue(result.getOrNull()!!.contains(&quot;E+&quot;))"
+        errorLine2="                                     ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="456"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="AvoidUsingNotNullOperator"
+        message="Avoid using the `!!` operator"
+        errorLine1="        assertTrue(result.getOrNull()!!.contains(&quot;E+&quot;))"
+        errorLine2="                                     ~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/CalculatorEngineTest.kt"
+            line="463"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ComposeViewModelInjection"
+        message="Implicit dependencies of composables should be made explicit.&#xA;Usages of viewModel to acquire a ViewModel should be done in composable default parameters, so that it is more testable and flexible.&#xA;See https://slackhq.github.io/compose-lints/rules/#viewmodels for more information."
+        errorLine1="    val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeViewModelInjection"
+        message="Implicit dependencies of composables should be made explicit.&#xA;Usages of viewModel to acquire a ViewModel should be done in composable default parameters, so that it is more testable and flexible.&#xA;See https://slackhq.github.io/compose-lints/rules/#viewmodels for more information."
+        errorLine1="    val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DenyListedApi"
+        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
+        errorLine1="                    runCatching { historyRepo.addEntry(closedExpr, result) }"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/calculator/CalculatorViewModel.kt"
+            line="460"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DenyListedApi"
+        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
+        errorLine1="            runCatching { historyRepo.clearHistory() }"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/calculator/CalculatorViewModel.kt"
+            line="514"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DenyListedApi"
+        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
+        errorLine1="            runCatching { historyRepo.deleteEntry(id) }"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/calculator/CalculatorViewModel.kt"
+            line="521"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DenyListedApi"
+        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
+        errorLine1="                runCatching { BigDecimal(result.getOrNull()) }.getOrThrow()"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/InvariantTest.kt"
+            line="48"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DenyListedApi"
+        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
+        errorLine1="            runCatching { engine.evaluate(str) }.getOrThrow()"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/test/java/com/calculator/app/domain/engine/InvariantTest.kt"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.compose.material3.ButtonGroupKt.ButtonGroup is deprecated; consider using an alternative."
+        errorLine1="                ButtonGroup("
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/calculator/app/ui/calculator/components/ButtonGrid.kt"
+            line="47"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.compose.material3.ButtonGroupKt.ButtonGroup is deprecated; consider using an alternative."
+        errorLine1="        ButtonGroup("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/calculator/app/ui/calculator/components/ScientificRow.kt"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="                db.execSQL("
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/calculator/app/data/local/db/CalculatorDatabase.kt"
+            line="21"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="                db.execSQL(&quot;DROP INDEX IF EXISTS index_calculation_history_timestamp&quot;)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/data/local/db/CalculatorDatabase.kt"
+            line="35"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="                db.execSQL("
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/calculator/app/data/local/db/CalculatorDatabase.kt"
+            line="36"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL("
+        errorLine2="            ^">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="17"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL("
+        errorLine2="            ^">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL(&quot;DROP INDEX IF EXISTS index_calculation_history_timestamp&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="50"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL("
+        errorLine2="            ^">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="51"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL(&quot;DROP INDEX IF EXISTS index_calculation_history_timestamp&quot;)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="70"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedSqlUsage"
+        message="All SQL querying should be performed using `SqlDelight`"
+        errorLine1="            db.execSQL("
+        errorLine2="            ^">
+        <location
+            file="src/test/java/com/calculator/app/data/local/db/CalculatorDatabaseMigrationTest.kt"
+            line="71"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: ThemeSettings) {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun HistoryBottomSheet(historyItems: List&lt;HistoryItem>, onDismiss: () -> Unit, onItemClick: (String) -> Unit, onClearAll: () -> Unit) {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/history/HistoryOverlay.kt"
+            line="54"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun SettingsSheet("
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/settings/SettingsSheet.kt"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeUnstableCollections"
+        message="The Compose Compiler cannot infer the stability of a parameter if a List&lt;HistoryItem> is used in it, even if the item type is stable.&#xA;You should use Kotlinx Immutable Collections instead: `historyItems: ImmutableList&lt;HistoryItem>` or create an `@Immutable` wrapper for this class: `@Immutable data class HistoryItemsList(val items: List&lt;HistoryItem>)`&#xA;See https://slackhq.github.io/compose-lints/rules/#avoid-using-unstable-collections for more information."
+        errorLine1="fun HistoryBottomSheet(historyItems: List&lt;HistoryItem>, onDismiss: () -> Unit, onItemClick: (String) -> Unit, onClearAll: () -> Unit) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/history/HistoryOverlay.kt"
+            line="54"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="ComposeUnstableCollections"
+        message="The Compose Compiler cannot infer the stability of a parameter if a List&lt;HistoryItem> is used in it, even if the item type is stable.&#xA;You should use Kotlinx Immutable Collections instead: `historyItems: ImmutableList&lt;HistoryItem>` or create an `@Immutable` wrapper for this class: `@Immutable data class HistoryItemsList(val items: List&lt;HistoryItem>)`&#xA;See https://slackhq.github.io/compose-lints/rules/#avoid-using-unstable-collections for more information."
+        errorLine1="fun HistoryPanel(historyItems: List&lt;HistoryItem>, onItemClick: (String) -> Unit, onClearAll: () -> Unit, modifier: Modifier = Modifier) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/calculator/app/ui/history/HistoryOverlay.kt"
+            line="247"
+            column="32"/>
+    </issue>
+
+</issues>

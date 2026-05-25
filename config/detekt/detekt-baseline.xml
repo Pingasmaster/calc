@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:CalculatorViewModel.kt:CalculatorViewModel$charBefore != null &amp;&amp; ( charBefore.isDigit() || charBefore == ')' || charBefore == 'π' || charBefore == 'e' || charBefore == '%' || charBefore == '!' )</ID>
+    <ID>ComplexCondition:CalculatorViewModel.kt:CalculatorViewModel$charBefore == 'π' || charBefore == 'e' || charBefore == '%' || charBefore == '!'</ID>
+    <ID>ComplexCondition:Tokenizer.kt:Tokenizer$i &lt; expr.length &amp;&amp; (expr[i].isDigit() || (expr[i] == '.' &amp;&amp; !hasDecimal))</ID>
+    <ID>ComplexCondition:Tokenizer.kt:Tokenizer$last == null || last is Token.LeftParen || last is Token.Operator || last is Token.UnaryMinus</ID>
+    <ID>CyclomaticComplexMethod:ExpressionParser.kt:ExpressionParser$fun evaluatePostfix: BigDecimal</ID>
+    <ID>CyclomaticComplexMethod:ExpressionParser.kt:ExpressionParser$fun toPostfix: List&lt;Token&gt;</ID>
+    <ID>CyclomaticComplexMethod:Tokenizer.kt:Tokenizer$fun tokenize: List&lt;Token&gt;</ID>
+    <ID>LargeClass:CalculatorViewModelTest.kt:CalculatorViewModelTest</ID>
+    <ID>LargeClass:ExpressionParserTest.kt:ExpressionParserTest</ID>
+    <ID>LargeClass:TokenizerTest.kt:TokenizerTest</ID>
+    <ID>LongMethod:CalculatorButtonView.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun CalculatorButtonView</ID>
+    <ID>LongMethod:DisplayPanel.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun DisplayPanel</ID>
+    <ID>LongMethod:HistoryOverlay.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable fun HistoryBottomSheet</ID>
+    <ID>LongMethod:HistoryOverlay.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun HistoryPanel</ID>
+    <ID>LongMethod:SettingsSheet.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsSheet</ID>
+    <ID>LongMethod:Tokenizer.kt:Tokenizer$fun tokenize: List&lt;Token&gt;</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$2000L</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$35</ID>
+    <ID>MatchingDeclarationName:CalculatorButtonView.kt:ButtonColors</ID>
+    <ID>MatchingDeclarationName:Shape.kt:CalculatorShapes</ID>
+    <ID>ModifierMissing:AdaptiveCalculatorLayout.kt:@Composable fun AdaptiveCalculatorLayout</ID>
+    <ID>NestedBlockDepth:ExpressionParser.kt:ExpressionParser$fun toPostfix: List&lt;Token&gt;</ID>
+    <ID>SwallowedException:CalculatorEngine.kt:CalculatorEngine$e: Exception</ID>
+    <ID>ThrowsCount:ExpressionParser.kt:ExpressionParser$fun evaluatePostfix: BigDecimal</ID>
+    <ID>ThrowsCount:ExpressionParser.kt:ExpressionParser$private fun factorial: BigDecimal</ID>
+    <ID>TooGenericExceptionCaught:CalculatorEngine.kt:CalculatorEngine$e: Exception</ID>
+    <ID>TooManyFunctions:CalculatorViewModel.kt:CalculatorViewModel : ViewModel</ID>
+    <ID>ViewModelInjection:AdaptiveCalculatorLayout.kt:val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)</ID>
+    <ID>ViewModelInjection:AdaptiveCalculatorLayout.kt:val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)</ID>
+  </CurrentIssues>
+</SmellBaseline>

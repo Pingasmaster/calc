@@ -19,11 +19,7 @@ import com.calculator.app.domain.model.buttonRows
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ButtonGrid(
-    onButtonClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    hapticsEnabled: Boolean = true,
-) {
+fun ButtonGrid(onButtonClick: (String) -> Unit, modifier: Modifier = Modifier, hapticsEnabled: Boolean = true) {
     BoxWithConstraints(modifier = modifier) {
         val availableWidth = maxWidth
         val spacing = 8.dp
@@ -33,8 +29,8 @@ fun ButtonGrid(
         val totalWeight = 3f + 0.75f
         val totalSpacing = spacing * 3
         val numberButtonWidth = (availableWidth - totalSpacing) * (1f / totalWeight)
-        val rowHeight = numberButtonWidth  // square for number buttons
-        val functionRowHeight = rowHeight * 0.83f  // function row is smaller
+        val rowHeight = numberButtonWidth // square for number buttons
+        val functionRowHeight = rowHeight * 0.83f // function row is smaller
 
         Column(
             verticalArrangement = Arrangement.spacedBy(spacing),

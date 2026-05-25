@@ -28,10 +28,7 @@ import com.calculator.app.ui.settings.SettingsSheet
 import com.calculator.app.ui.settings.SettingsViewModel
 
 @Composable
-fun AdaptiveCalculatorLayout(
-    windowSizeClass: WindowSizeClass,
-    themeSettings: ThemeSettings,
-) {
+fun AdaptiveCalculatorLayout(windowSizeClass: WindowSizeClass, themeSettings: ThemeSettings) {
     val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val historyItems by viewModel.history.collectAsStateWithLifecycle()
@@ -75,6 +72,7 @@ fun AdaptiveCalculatorLayout(
                 )
             }
         }
+
         else -> {
             Box(
                 modifier = Modifier

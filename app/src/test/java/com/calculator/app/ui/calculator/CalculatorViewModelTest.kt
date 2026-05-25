@@ -39,14 +39,13 @@ class CalculatorViewModelTest {
         viewModel = newViewModel(SavedStateHandle())
     }
 
-    private fun newViewModel(handle: SavedStateHandle): CalculatorViewModel =
-        CalculatorViewModel(
-            historyRepo = historyRepo,
-            savedStateHandle = handle,
-            previewDispatcher = testDispatcher,
-            previewDebounceMs = 0L,
-            saveStateDebounceMs = 0L,
-        )
+    private fun newViewModel(handle: SavedStateHandle): CalculatorViewModel = CalculatorViewModel(
+        historyRepo = historyRepo,
+        savedStateHandle = handle,
+        previewDispatcher = testDispatcher,
+        previewDebounceMs = 0L,
+        saveStateDebounceMs = 0L,
+    )
 
     @After
     fun tearDown() {
@@ -441,7 +440,7 @@ class CalculatorViewModelTest {
                 "displayText" to "12+3",
                 "openParenCount" to 0,
                 "isResultDisplayed" to false,
-            )
+            ),
         )
         val vm = newViewModel(handle)
 
@@ -503,7 +502,7 @@ class CalculatorViewModelTest {
                 "openParenCount" to 0,
                 "isResultDisplayed" to true,
                 "isError" to true,
-            )
+            ),
         )
         val vm = newViewModel(handle)
 
@@ -520,7 +519,7 @@ class CalculatorViewModelTest {
                 "openParenCount" to 0,
                 "isResultDisplayed" to true,
                 "isError" to true,
-            )
+            ),
         )
         val vm = newViewModel(handle)
         vm.onButtonClick("+")
@@ -1091,7 +1090,7 @@ class CalculatorViewModelTest {
                 "displayText" to "((1+2",
                 "isResultDisplayed" to false,
                 "isError" to false,
-            )
+            ),
         )
         val vm = newViewModel(handle)
         assertEquals(2, vm.state.value.openParenCount)

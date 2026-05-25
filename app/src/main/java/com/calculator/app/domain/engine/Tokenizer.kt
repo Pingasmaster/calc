@@ -25,9 +25,9 @@ object Tokenizer {
     private val PI = BigDecimal("3.141592653589793238462643")
     private val E = BigDecimal("2.718281828459045235360287")
 
-    private const val U_TIMES = '×'  // ×
-    private const val U_DIV = '÷'    // ÷
-    private const val U_MINUS = '−'  // −
+    private const val U_TIMES = '×' // ×
+    private const val U_DIV = '÷' // ÷
+    private const val U_MINUS = '−' // −
 
     fun tokenize(expression: String): List<Token> {
         // Skip the three replace() passes (= three string allocations) when the
@@ -148,9 +148,9 @@ object Tokenizer {
         return tokens
     }
 
-    private fun needsImplicitMultiply(token: Token): Boolean {
-        return token is Token.Number || token is Token.Constant ||
-                token is Token.RightParen || token is Token.Percent ||
-                token is Token.Function && token.name == "!"
-    }
+    private fun needsImplicitMultiply(token: Token): Boolean = token is Token.Number ||
+        token is Token.Constant ||
+        token is Token.RightParen ||
+        token is Token.Percent ||
+        (token is Token.Function && token.name == "!")
 }

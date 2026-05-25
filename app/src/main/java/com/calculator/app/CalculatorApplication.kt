@@ -1,11 +1,11 @@
 package com.calculator.app
 
 import android.app.Application
+import android.util.Log
 import androidx.room.Room
 import com.calculator.app.data.local.db.CalculatorDatabase
 import com.calculator.app.data.local.preferences.ThemeSettings
 import com.calculator.app.data.local.preferences.UserPreferences
-import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -42,7 +42,7 @@ class CalculatorApplication : Application() {
     private val appScope = CoroutineScope(
         SupervisorJob() + CoroutineExceptionHandler { _, t ->
             Log.e("CalculatorApp", "Unhandled appScope failure", t)
-        }
+        },
     )
 
     override fun onCreate() {

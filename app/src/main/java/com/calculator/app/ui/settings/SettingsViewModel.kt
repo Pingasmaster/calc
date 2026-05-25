@@ -15,9 +15,7 @@ import kotlinx.coroutines.launch
  * [viewModelScope] so they survive composition tear-down (e.g. when the
  * settings sheet is dismissed immediately after a toggle).
  */
-class SettingsViewModel(
-    private val userPreferences: UserPreferences,
-) : ViewModel() {
+class SettingsViewModel(private val userPreferences: UserPreferences) : ViewModel() {
 
     // Each setter below delegates to UserPreferences.setThemeSettings(...) via
     // the single-key convenience wrappers — keeping the UI's per-toggle

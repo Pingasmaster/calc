@@ -9,13 +9,13 @@ import androidx.compose.ui.unit.dp
 object CalculatorShapes {
     val Button: Shape = CircleShape
     val ButtonPressed: Shape = RoundedCornerShape(20.dp)
-    val WideButton: Shape = CircleShape                    // pill shape (= button)
-    val WideButtonPressed: Shape = RoundedCornerShape(16.dp)  // M3 large
-    val OperatorButton: Shape = RoundedCornerShape(16.dp)     // M3 large
+    val WideButton: Shape = CircleShape // pill shape (= button)
+    val WideButtonPressed: Shape = RoundedCornerShape(16.dp) // M3 large
+    val OperatorButton: Shape = RoundedCornerShape(16.dp) // M3 large
     val OperatorButtonPressed: Shape = RoundedCornerShape(12.dp) // M3 medium
-    val BackspaceButton: Shape = RoundedCornerShape(12.dp)    // M3 medium
+    val BackspaceButton: Shape = RoundedCornerShape(12.dp) // M3 medium
     val BackspaceButtonPressed: Shape = RoundedCornerShape(8.dp) // M3 small
-    val DisplayPanel: Shape = RoundedCornerShape(28.dp)       // M3 extraLarge
+    val DisplayPanel: Shape = RoundedCornerShape(28.dp) // M3 extraLarge
     val HistoryOverlay: Shape = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp) // M3 extraLarge
 }
 
@@ -24,8 +24,8 @@ object CalculatorShapes {
  * last item has large bottom corners, middle items have small corners.
  */
 fun segmentedItemShape(index: Int, count: Int): RoundedCornerShape {
-    val large = 28.dp  // M3 extraLarge
-    val small = 4.dp   // M3 extraSmall
+    val large = 28.dp // M3 extraLarge
+    val small = 4.dp // M3 extraSmall
     return when {
         count == 1 -> RoundedCornerShape(large)
         index == 0 -> RoundedCornerShape(topStart = large, topEnd = large, bottomStart = small, bottomEnd = small)
