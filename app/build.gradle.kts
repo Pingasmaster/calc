@@ -13,8 +13,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 46
-        versionName = "1.0.45"
+        versionCode = 47
+        versionName = "1.0.46"
     }
 
     buildTypes {
@@ -66,6 +66,7 @@ android {
                 "META-INF/LGPL2.1",
                 "META-INF/androidx/**/LICENSE.txt",
                 "META-INF/versions/**",
+                "**/*.kotlin_module",
                 "DebugProbesKt.bin",
             )
         }
@@ -136,9 +137,6 @@ dependencies {
 
     // Splash screen API (Android 12+ system splash)
     implementation(libs.core.splashscreen)
-
-    // Baseline profile installer (loads assets/dexopt/baseline.prof on first run)
-    implementation(libs.profileinstaller)
 
     // Testing
     testImplementation(libs.junit)

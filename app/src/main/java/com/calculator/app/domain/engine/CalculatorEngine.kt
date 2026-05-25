@@ -27,26 +27,24 @@ class CalculatorEngine {
     }
 
     private fun formatResult(value: BigDecimal): String {
-        val stripped = value.stripTrailingZeros()
-        return if (stripped.scale() <= 0) {
-            val intStr = stripped.toBigInteger().toString()
-            if (intStr.replace("-", "").length > MAX_INTEGER_DIGITS) {
-                stripped.round(java.math.MathContext(MAX_DISPLAY_DECIMAL_PLACES + 1))
-                    .stripTrailingZeros()
-                    .toString()
-            } else {
-                intStr
+        var num = value.stripTrailingZeros()
+        return when {
+            num.scale() <= 0 -> {
+                val intStr = num.toBigInteger().toString()
+                if (intStr.replace("-", "").length > MAX_INTEGER_DIGITS) {
+                    num = num.round(java.math.MathContext(MAX_DISPLAY_DECIMAL_PLACES + 1))
+                        .stripTrailingZeros()
+                    num.toString()
+                } else {
+                    intStr
+                }
             }
-        } else {
-            val plain = stripped.toPlainString()
-            // Cap decimal places for display
-            if (stripped.scale() > MAX_DISPLAY_DECIMAL_PLACES) {
-                stripped.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
+            num.scale() > MAX_DISPLAY_DECIMAL_PLACES -> {
+                num = num.setScale(MAX_DISPLAY_DECIMAL_PLACES, java.math.RoundingMode.HALF_UP)
                     .stripTrailingZeros()
-                    .toPlainString()
-            } else {
-                plain
+                num.toPlainString()
             }
+            else -> num.toPlainString()
         }
     }
 }

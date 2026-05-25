@@ -106,7 +106,8 @@ class CalculatorViewModel(
                     if (text.isEmpty() || suppress) {
                         ""
                     } else {
-                        val closedExpr = text + ")".repeat(parenCount(text))
+                        val openCount = parenCount(text)
+                        val closedExpr = if (openCount == 0) text else text + ")".repeat(openCount)
                         engine.evaluate(closedExpr).getOrNull() ?: ""
                     }
                 }
@@ -128,16 +129,26 @@ class CalculatorViewModel(
 
     private val cursor: Int get() = expressionField.selection.start
 
-    private fun parenCount(expr: String = expression): Int =
-        (expr.count { it == '(' } - expr.count { it == ')' }).coerceAtLeast(0)
+    private fun parenCount(expr: String = expression): Int {
+        var open = 0
+        var close = 0
+        for (c in expr) {
+            when (c) {
+                '(' -> open++
+                ')' -> close++
+            }
+        }
+        return (open - close).coerceAtLeast(0)
+    }
 
     private fun syncState() {
         val expr = expression
+        val openCount = parenCount(expr)
         _state.update {
             it.copy(
                 expression = expr,
                 displayText = expr.ifEmpty { "0" },
-                openParenCount = parenCount(expr),
+                openParenCount = openCount,
                 isError = false,
             )
         }
@@ -180,9 +191,23 @@ class CalculatorViewModel(
                 val text = expression
                 val charBefore = if (pos > 0) text[pos - 1] else null
                 if (charBefore == 'π' || charBefore == 'e' || charBefore == '%' || charBefore == '!') return
-                val leftNum = text.substring(0, pos).takeLastWhile { it.isDigit() || it == '.' }
-                val rightNum = text.substring(pos).takeWhile { it.isDigit() || it == '.' }
-                if ('.' in (leftNum + rightNum)) return
+                // Walk outward from the cursor through the current number;
+                // abort if a '.' is already inside it. Avoids allocating
+                // two substrings + a concat just to call `'.' in (left + right)`.
+                var i = pos - 1
+                while (i >= 0) {
+                    val c = text[i]
+                    if (c == '.') return
+                    if (!c.isDigit()) break
+                    i--
+                }
+                var j = pos
+                while (j < text.length) {
+                    val c = text[j]
+                    if (c == '.') return
+                    if (!c.isDigit()) break
+                    j++
+                }
             }
             expressionField.edit {
                 val pos = selection.start
@@ -342,11 +367,13 @@ class CalculatorViewModel(
 
         if (expr.isEmpty()) return
 
-        // Strip trailing operators
-        while (expr.isNotEmpty() && expr.last().toString() in operators) {
-            expr = expr.dropLast(1)
+        // Strip trailing operators in a single substring instead of N dropLast() allocations.
+        var end = expr.length
+        while (end > 0 && expr[end - 1].toString() in operators) {
+            end--
         }
-        if (expr.isEmpty()) return
+        if (end == 0) return
+        if (end < expr.length) expr = expr.substring(0, end)
 
         val openParens = parenCount(expr)
         val closedExpr = expr + ")".repeat(openParens)

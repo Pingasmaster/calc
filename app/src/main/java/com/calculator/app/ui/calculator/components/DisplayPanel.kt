@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.calculator.app.R
@@ -53,14 +54,19 @@ fun DisplayPanel(
         horizontalAlignment = Alignment.End,
     ) {
         val motionScheme = MaterialTheme.motionScheme
+        // Hoist the three motion specs out of the transitionSpec closures so we
+        // don't re-derive them on every animation tick / state change.
+        val spatialSpec = remember(motionScheme) { motionScheme.defaultSpatialSpec<IntOffset>() }
+        val effectsSpec = remember(motionScheme) { motionScheme.defaultEffectsSpec<Float>() }
+        val fastFxSpec = remember(motionScheme) { motionScheme.fastEffectsSpec<Float>() }
 
         // Expression line (shown above result when = was pressed)
         AnimatedContent(
             targetState = expressionText,
             transitionSpec = {
-                (slideInVertically(motionScheme.defaultSpatialSpec()) { -it } + fadeIn(motionScheme.defaultEffectsSpec()))
+                (slideInVertically(spatialSpec) { -it } + fadeIn(effectsSpec))
                     .togetherWith(
-                        slideOutVertically(motionScheme.defaultSpatialSpec()) { it } + fadeOut(motionScheme.defaultEffectsSpec())
+                        slideOutVertically(spatialSpec) { it } + fadeOut(effectsSpec)
                     )
             },
             label = "expression",
@@ -146,7 +152,7 @@ fun DisplayPanel(
                 ""
             },
             transitionSpec = {
-                fadeIn(motionScheme.fastEffectsSpec()) togetherWith fadeOut(motionScheme.fastEffectsSpec())
+                fadeIn(fastFxSpec) togetherWith fadeOut(fastFxSpec)
             },
             label = "preview",
         ) { preview ->

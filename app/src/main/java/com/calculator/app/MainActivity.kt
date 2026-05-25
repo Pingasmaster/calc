@@ -21,10 +21,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val app = application as CalculatorApplication
         val splash = installSplashScreen()
-        splash.setKeepOnScreenCondition { app.themeSettings.value == null }
+        val splashStart = android.os.SystemClock.elapsedRealtime()
+        // Defensive 2s ceiling so a degenerate slow-disk device can't hang us
+        // forever waiting on the first DataStore emission.
+        splash.setKeepOnScreenCondition {
+            app.themeSettings.value == null &&
+                android.os.SystemClock.elapsedRealtime() - splashStart < 2000L
+        }
 
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // enableEdgeToEdge() is re-applied with theme-aware bar styles inside
+        // the DisposableEffect below; calling it here too would just do the work twice.
 
         setContent {
             val settings by app.themeSettings.collectAsStateWithLifecycle()

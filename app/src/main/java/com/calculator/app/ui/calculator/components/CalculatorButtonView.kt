@@ -93,9 +93,13 @@ fun CalculatorButtonView(
         ButtonCategory.AC -> HapticFeedbackType.Reject
         else -> HapticFeedbackType.KeyboardTap
     }
-    val onClickWithHaptic: () -> Unit = {
-        haptic.performHapticFeedback(hapticType)
-        onClick()
+    // Memoize so the Button doesn't see a brand-new lambda identity on every
+    // recomposition — keeps the inner Material Button skippable.
+    val onClickWithHaptic = remember(haptic, hapticType, onClick) {
+        {
+            haptic.performHapticFeedback(hapticType)
+            onClick()
+        }
     }
 
     when (button.category) {

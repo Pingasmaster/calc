@@ -36,17 +36,21 @@ fun CalculatorTheme(
     }
 
     val finalColorScheme = if (oledBlack && darkTheme) {
-        baseScheme.copy(
-            background = Color.Black,
-            surface = Color.Black,
-            surfaceDim = Color.Black,
-            surfaceBright = Color(0xFF0A0A0A),
-            surfaceContainerLowest = Color.Black,
-            surfaceContainerLow = Color(0xFF050505),
-            surfaceContainer = Color(0xFF0A0A0A),
-            surfaceContainerHigh = Color(0xFF1A1A1A),
-            surfaceContainerHighest = Color(0xFF2A2A2A),
-        )
+        // The .copy() builds a brand-new ColorScheme on each call; memoize it so
+        // unrelated recompositions of CalculatorTheme don't churn it every frame.
+        remember(baseScheme) {
+            baseScheme.copy(
+                background = Color.Black,
+                surface = Color.Black,
+                surfaceDim = Color.Black,
+                surfaceBright = Color(0xFF0A0A0A),
+                surfaceContainerLowest = Color.Black,
+                surfaceContainerLow = Color(0xFF050505),
+                surfaceContainer = Color(0xFF0A0A0A),
+                surfaceContainerHigh = Color(0xFF1A1A1A),
+                surfaceContainerHighest = Color(0xFF2A2A2A),
+            )
+        }
     } else {
         baseScheme
     }
@@ -54,16 +58,14 @@ fun CalculatorTheme(
     val motionScheme = MotionScheme.expressive()
     val spec = remember(motionScheme) { motionScheme.fastEffectsSpec<Color>() }
 
-    // Animate only the visible-surface colors so theme switches feel smooth
-    // without paying for 38 simultaneous color animations per recomposition.
+    // Animate only the four most-visible role colors during a theme switch.
+    // The surfaceContainer{Lowest,Low,High,Highest} variants are rarely on
+    // screen long enough for the cross-fade to matter, so we let them pop
+    // instantly and save four animateColorAsState subscriptions per frame.
     val animatedScheme = finalColorScheme.copy(
         surface = animateColorAsState(finalColorScheme.surface, spec).value,
         background = animateColorAsState(finalColorScheme.background, spec).value,
         surfaceContainer = animateColorAsState(finalColorScheme.surfaceContainer, spec).value,
-        surfaceContainerHigh = animateColorAsState(finalColorScheme.surfaceContainerHigh, spec).value,
-        surfaceContainerHighest = animateColorAsState(finalColorScheme.surfaceContainerHighest, spec).value,
-        surfaceContainerLow = animateColorAsState(finalColorScheme.surfaceContainerLow, spec).value,
-        surfaceContainerLowest = animateColorAsState(finalColorScheme.surfaceContainerLowest, spec).value,
         primary = animateColorAsState(finalColorScheme.primary, spec).value,
     )
 
