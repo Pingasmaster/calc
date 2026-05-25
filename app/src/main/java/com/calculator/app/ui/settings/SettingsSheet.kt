@@ -163,7 +163,7 @@ fun SettingsSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_dark_mode),
+                    painter = painterResource(R.drawable.ic_vibration),
                     contentDescription = stringResource(R.string.settings_haptics),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

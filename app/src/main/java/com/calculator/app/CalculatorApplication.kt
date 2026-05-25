@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.calculator.app.data.local.db.CalculatorDatabase
 import com.calculator.app.data.local.preferences.ThemeSettings
 import com.calculator.app.data.local.preferences.UserPreferences
+import android.util.Log
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,7 +36,14 @@ class CalculatorApplication : Application() {
     lateinit var themeSettings: StateFlow<ThemeSettings?>
         private set
 
-    private val appScope = CoroutineScope(SupervisorJob())
+    // SupervisorJob keeps sibling coroutines alive on failure; the exception
+    // handler keeps the failure observable instead of being silently dropped
+    // (DataStore IOException, for example, would otherwise just print to stderr).
+    private val appScope = CoroutineScope(
+        SupervisorJob() + CoroutineExceptionHandler { _, t ->
+            Log.e("CalculatorApp", "Unhandled appScope failure", t)
+        }
+    )
 
     override fun onCreate() {
         super.onCreate()

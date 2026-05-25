@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cloud-backup-rules>
+<!--
+  Schema for android:fullBackupContent (legacy/pre-SDK-31 backup config).
+  Modern devices (targetSdk=37) instead honour @xml/data_extraction_rules,
+  but we keep this in sync so the legacy fallback path also excludes the DB.
+-->
+<full-backup-content>
     <exclude domain="database" path="calculator.db" />
-</cloud-backup-rules>
+</full-backup-content>
