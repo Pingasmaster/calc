@@ -34,15 +34,23 @@ interface HistoryDao {
     )
     suspend fun trimToSize(keepCount: Int = 100)
 
+    @Query("SELECT COUNT(*) FROM calculation_history")
+    suspend fun countRows(): Int
+
     /**
      * Inserts a new entry and trims the table to [keepCount] rows in a single
      * transaction. Without this, the two operations emit two separate
      * invalidation signals, causing the observe Flow to publish twice per
      * `=` press and flickering the history `LazyColumn`.
+     *
+     * We gate [trimToSize] on the row count so the NOT-IN subquery scan only
+     * runs when we actually need to drop rows. SQLite COUNT on the indexed
+     * table is microseconds; the gated trim avoids a no-op WAL append every
+     * insert until the table fills.
      */
     @Transaction
     suspend fun insertAndTrim(entry: HistoryEntity, keepCount: Int = 100) {
         insert(entry)
-        trimToSize(keepCount)
+        if (countRows() > keepCount) trimToSize(keepCount)
     }
 }

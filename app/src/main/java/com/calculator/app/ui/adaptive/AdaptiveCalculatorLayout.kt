@@ -14,6 +14,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.window.core.layout.WindowSizeClass
@@ -33,6 +35,13 @@ fun AdaptiveCalculatorLayout(
     val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)
     val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val historyItems by viewModel.history.collectAsStateWithLifecycle()
+
+    // Flush the debounced SavedStateHandle writes before the Activity hands the
+    // outState Bundle to the system. ON_PAUSE fires before onSaveInstanceState
+    // on Android 9+ (we're minSdk=33), so the flush lands in time.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        viewModel.flushSaveStateNow()
+    }
 
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
@@ -59,6 +68,7 @@ fun AdaptiveCalculatorLayout(
                 CalculatorScreen(
                     viewModel = viewModel,
                     onSettingsClick = { showSettings = true },
+                    hapticsEnabled = themeSettings.hapticsEnabled,
                     modifier = Modifier
                         .weight(2f)
                         .fillMaxHeight(),
@@ -76,6 +86,7 @@ fun AdaptiveCalculatorLayout(
                     viewModel = viewModel,
                     onDisplayClick = { showHistory = true },
                     onSettingsClick = { showSettings = true },
+                    hapticsEnabled = themeSettings.hapticsEnabled,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -96,9 +107,11 @@ fun AdaptiveCalculatorLayout(
             themeMode = themeSettings.themeMode,
             dynamicColor = themeSettings.dynamicColor,
             oledBlack = themeSettings.oledBlack,
+            hapticsEnabled = themeSettings.hapticsEnabled,
             onThemeModeChange = settingsViewModel::setThemeMode,
             onDynamicColorChange = settingsViewModel::setDynamicColor,
             onOledBlackChange = settingsViewModel::setOledBlack,
+            onHapticsEnabledChange = settingsViewModel::setHapticsEnabled,
             onDismiss = { showSettings = false },
         )
     }

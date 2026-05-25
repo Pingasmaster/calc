@@ -85,6 +85,7 @@ fun CalculatorButtonView(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    hapticsEnabled: Boolean = true,
 ) {
     val colors = rememberButtonColors(button.category)
     val haptic = LocalHapticFeedback.current
@@ -95,11 +96,18 @@ fun CalculatorButtonView(
     }
     // Memoize so the Button doesn't see a brand-new lambda identity on every
     // recomposition — keeps the inner Material Button skippable.
-    val onClickWithHaptic = remember(haptic, hapticType, onClick) {
+    val onClickWithHaptic = remember(haptic, hapticType, onClick, hapticsEnabled) {
         {
-            haptic.performHapticFeedback(hapticType)
+            if (hapticsEnabled) haptic.performHapticFeedback(hapticType)
             onClick()
         }
+    }
+    // The user already felt the initial click pulse; a second LongPress pulse
+    // is just extra vibrator runtime. Long-press fires its callback silently.
+    val onLongClickHandler: (() -> Unit)? = remember(onLongClick) {
+        if (onLongClick != null) {
+            { onLongClick() }
+        } else null
     }
 
     when (button.category) {
@@ -127,12 +135,7 @@ fun CalculatorButtonView(
                         interactionSource = interactionSource,
                         indication = ripple(),
                         onClick = onClickWithHaptic,
-                        onLongClick = if (onLongClick != null) {
-                            {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onLongClick()
-                            }
-                        } else null,
+                        onLongClick = onLongClickHandler,
                     )
                     .semantics { contentDescription = button.contentDescription },
                 contentAlignment = Alignment.Center,

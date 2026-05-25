@@ -22,6 +22,7 @@ import com.calculator.app.domain.model.buttonRows
 fun ButtonGrid(
     onButtonClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    hapticsEnabled: Boolean = true,
 ) {
     BoxWithConstraints(modifier = modifier) {
         val availableWidth = maxWidth
@@ -63,6 +64,7 @@ fun ButtonGrid(
                                     .weight(btn.widthWeight)
                                     .animateWidth(interactionSource),
                                 interactionSource = interactionSource,
+                                hapticsEnabled = hapticsEnabled,
                             )
                         }
                     }

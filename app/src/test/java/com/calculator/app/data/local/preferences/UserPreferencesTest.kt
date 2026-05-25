@@ -115,4 +115,53 @@ class UserPreferencesTest {
         dataStore.edit { it[stringPreferencesKey("theme_mode")] = "garbage" }
         assertEquals(ThemeMode.SYSTEM, prefs().themeMode.first())
     }
+
+    @Test
+    fun `default hapticsEnabled is true`() = runTest {
+        assertTrue(prefs().hapticsEnabled.first())
+    }
+
+    @Test
+    fun `setHapticsEnabled false persists`() = runTest {
+        val p = prefs()
+        p.setHapticsEnabled(false)
+        assertFalse(p.hapticsEnabled.first())
+    }
+
+    @Test
+    fun `setHapticsEnabled true persists`() = runTest {
+        val p = prefs()
+        p.setHapticsEnabled(false)
+        p.setHapticsEnabled(true)
+        assertTrue(p.hapticsEnabled.first())
+    }
+
+    @Test
+    fun `setThemeSettings composite applies all non-null fields in one edit`() = runTest {
+        val p = prefs()
+        p.setThemeSettings(
+            mode = ThemeMode.DARK,
+            dynamicColor = false,
+            oledBlack = true,
+            hapticsEnabled = false,
+        )
+        val settings = p.themeSettings.first()
+        assertEquals(ThemeMode.DARK, settings.themeMode)
+        assertFalse(settings.dynamicColor)
+        assertTrue(settings.oledBlack)
+        assertFalse(settings.hapticsEnabled)
+    }
+
+    @Test
+    fun `setThemeSettings leaves null fields untouched`() = runTest {
+        val p = prefs()
+        p.setThemeMode(ThemeMode.LIGHT)
+        p.setHapticsEnabled(false)
+        // Composite write that only touches dynamicColor:
+        p.setThemeSettings(dynamicColor = false)
+        val settings = p.themeSettings.first()
+        assertEquals(ThemeMode.LIGHT, settings.themeMode)
+        assertFalse(settings.dynamicColor)
+        assertFalse(settings.hapticsEnabled)
+    }
 }

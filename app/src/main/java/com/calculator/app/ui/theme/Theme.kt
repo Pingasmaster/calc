@@ -49,6 +49,13 @@ fun CalculatorTheme(
                 surfaceContainer = Color(0xFF0A0A0A),
                 surfaceContainerHigh = Color(0xFF1A1A1A),
                 surfaceContainerHighest = Color(0xFF2A2A2A),
+                // OPERATOR (secondaryContainer) + FUNCTION (tertiaryContainer)
+                // buttons cover most of the grid; without these overrides they
+                // stay bright purple/pink even in "OLED black" mode.
+                secondaryContainer = Color(0xFF1A1A1A),
+                onSecondaryContainer = Color(0xFFE7E0EB),
+                tertiaryContainer = Color(0xFF1A1A1A),
+                onTertiaryContainer = Color(0xFFE7E0EB),
             )
         }
     } else {

@@ -34,6 +34,7 @@ fun CalculatorScreen(
     modifier: Modifier = Modifier,
     onDisplayClick: (() -> Unit)? = null,
     onSettingsClick: (() -> Unit)? = null,
+    hapticsEnabled: Boolean = true,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onButtonClick = remember(viewModel) { viewModel::onButtonClick }
@@ -109,6 +110,7 @@ fun CalculatorScreen(
                     .fillMaxWidth()
                     .padding(bottom = 4.dp),
                 onLongPressBackspace = onLongPressBackspace,
+                hapticsEnabled = hapticsEnabled,
             )
 
             ButtonGrid(
@@ -116,6 +118,7 @@ fun CalculatorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
+                hapticsEnabled = hapticsEnabled,
             )
         }
     }

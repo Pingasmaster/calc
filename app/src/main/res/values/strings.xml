@@ -12,6 +12,8 @@
     <string name="settings_dynamic_color_description">Follow system wallpaper colors</string>
     <string name="settings_oled_dark">OLED dark theme</string>
     <string name="settings_oled_dark_description">Pure black background in dark mode</string>
+    <string name="settings_haptics">Haptic feedback</string>
+    <string name="settings_haptics_description">Vibrate on button press</string>
 
     <!-- History -->
     <string name="history_title">History</string>

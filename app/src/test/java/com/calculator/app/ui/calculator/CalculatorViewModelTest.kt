@@ -45,6 +45,7 @@ class CalculatorViewModelTest {
             savedStateHandle = handle,
             previewDispatcher = testDispatcher,
             previewDebounceMs = 0L,
+            saveStateDebounceMs = 0L,
         )
 
     @After
