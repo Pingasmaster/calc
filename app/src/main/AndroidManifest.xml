@@ -26,31 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- We don't ship a baseline profile or call ProfileInstaller; the
-             receiver/initializer get pulled in transitively by androidx.activity
-             and Compose. Strip them so no system component pings dead code.
-             `tools:ignore="MissingClass"` is needed because we removed the
-             profileinstaller dep, so the class isn't on our classpath anymore. -->
-        <receiver
-            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-            tools:node="remove"
-            tools:ignore="MissingClass" />
-
-        <!-- Single-process app; we never call enableMultiInstanceInvalidation(). -->
-        <service
-            android:name="androidx.room.MultiInstanceInvalidationService"
-            tools:node="remove" />
-
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            tools:node="merge"
-            tools:ignore="MissingClass,ExportedContentProvider">
-            <meta-data
-                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-                tools:node="remove" />
-        </provider>
     </application>
 
 </manifest>
