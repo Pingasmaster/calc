@@ -4,6 +4,7 @@ import com.calculator.app.data.local.db.dao.HistoryDao
 import com.calculator.app.data.local.db.entity.HistoryEntity
 import com.calculator.app.domain.model.HistoryItem
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class HistoryRepository(private val historyDao: HistoryDao) {
@@ -13,13 +14,15 @@ class HistoryRepository(private val historyDao: HistoryDao) {
     }
 
     fun observeHistory(): Flow<List<HistoryItem>> =
-        historyDao.observeAll().map { entities ->
-            entities.map { it.toDomain() }
-        }
+        historyDao.observeAll(MAX_HISTORY_ENTRIES)
+            .distinctUntilChanged()
+            .map { entities -> entities.map { it.toDomain() } }
 
     suspend fun addEntry(expression: String, result: String) {
-        historyDao.insert(HistoryEntity(expression = expression, result = result))
-        historyDao.trimToSize(MAX_HISTORY_ENTRIES)
+        historyDao.insertAndTrim(
+            HistoryEntity(expression = expression, result = result),
+            MAX_HISTORY_ENTRIES,
+        )
     }
 
     suspend fun clearHistory() = historyDao.clearAll()

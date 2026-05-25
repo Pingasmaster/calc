@@ -43,35 +43,37 @@ data class ButtonColors(
 @Composable
 fun rememberButtonColors(category: ButtonCategory): ButtonColors {
     val colorScheme = MaterialTheme.colorScheme
-    return when (category) {
-        ButtonCategory.NUMBER -> ButtonColors(
-            containerColor = colorScheme.surfaceContainerHigh,
-            contentColor = colorScheme.onSurface,
-        )
-        ButtonCategory.OPERATOR -> ButtonColors(
-            containerColor = colorScheme.secondaryContainer,
-            contentColor = colorScheme.onSecondaryContainer,
-        )
-        ButtonCategory.FUNCTION -> ButtonColors(
-            containerColor = colorScheme.tertiaryContainer,
-            contentColor = colorScheme.onTertiaryContainer,
-        )
-        ButtonCategory.AC -> ButtonColors(
-            containerColor = colorScheme.surfaceContainerHighest,
-            contentColor = colorScheme.onSurface,
-        )
-        ButtonCategory.EQUALS -> ButtonColors(
-            containerColor = colorScheme.primary,
-            contentColor = colorScheme.onPrimary,
-        )
-        ButtonCategory.SCIENTIFIC -> ButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = colorScheme.onSurfaceVariant,
-        )
-        ButtonCategory.BACKSPACE -> ButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = colorScheme.onSurfaceVariant,
-        )
+    return remember(category, colorScheme) {
+        when (category) {
+            ButtonCategory.NUMBER -> ButtonColors(
+                containerColor = colorScheme.surfaceContainerHigh,
+                contentColor = colorScheme.onSurface,
+            )
+            ButtonCategory.OPERATOR -> ButtonColors(
+                containerColor = colorScheme.secondaryContainer,
+                contentColor = colorScheme.onSecondaryContainer,
+            )
+            ButtonCategory.FUNCTION -> ButtonColors(
+                containerColor = colorScheme.tertiaryContainer,
+                contentColor = colorScheme.onTertiaryContainer,
+            )
+            ButtonCategory.AC -> ButtonColors(
+                containerColor = colorScheme.surfaceContainerHighest,
+                contentColor = colorScheme.onSurface,
+            )
+            ButtonCategory.EQUALS -> ButtonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary,
+            )
+            ButtonCategory.SCIENTIFIC -> ButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = colorScheme.onSurfaceVariant,
+            )
+            ButtonCategory.BACKSPACE -> ButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -85,11 +87,21 @@ fun CalculatorButtonView(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val colors = rememberButtonColors(button.category)
+    val haptic = LocalHapticFeedback.current
+    val hapticType = when (button.category) {
+        ButtonCategory.EQUALS -> HapticFeedbackType.Confirm
+        ButtonCategory.AC -> HapticFeedbackType.Reject
+        else -> HapticFeedbackType.KeyboardTap
+    }
+    val onClickWithHaptic: () -> Unit = {
+        haptic.performHapticFeedback(hapticType)
+        onClick()
+    }
 
     when (button.category) {
         ButtonCategory.SCIENTIFIC -> {
             TextButton(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shape = CalculatorShapes.Button,
                 interactionSource = interactionSource,
@@ -104,14 +116,13 @@ fun CalculatorButtonView(
         }
 
         ButtonCategory.BACKSPACE -> {
-            val haptic = LocalHapticFeedback.current
             Box(
                 modifier = modifier
                     .clip(CalculatorShapes.BackspaceButton)
                     .combinedClickable(
                         interactionSource = interactionSource,
                         indication = ripple(),
-                        onClick = onClick,
+                        onClick = onClickWithHaptic,
                         onLongClick = if (onLongClick != null) {
                             {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -133,7 +144,7 @@ fun CalculatorButtonView(
 
         ButtonCategory.EQUALS -> {
             Button(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shapes = ButtonDefaults.shapes(
                     shape = CalculatorShapes.WideButton,
@@ -156,7 +167,7 @@ fun CalculatorButtonView(
 
         ButtonCategory.AC -> {
             FilledTonalButton(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shapes = ButtonDefaults.shapes(
                     shape = CalculatorShapes.Button,
@@ -179,7 +190,7 @@ fun CalculatorButtonView(
 
         ButtonCategory.NUMBER -> {
             FilledTonalButton(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shapes = ButtonDefaults.shapes(
                     shape = CalculatorShapes.Button,
@@ -202,7 +213,7 @@ fun CalculatorButtonView(
 
         ButtonCategory.OPERATOR -> {
             FilledTonalButton(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shapes = ButtonDefaults.shapes(
                     shape = CalculatorShapes.OperatorButton,
@@ -225,7 +236,7 @@ fun CalculatorButtonView(
 
         ButtonCategory.FUNCTION -> {
             FilledTonalButton(
-                onClick = onClick,
+                onClick = onClickWithHaptic,
                 modifier = modifier.semantics { contentDescription = button.contentDescription },
                 shapes = ButtonDefaults.shapes(
                     shape = CalculatorShapes.Button,

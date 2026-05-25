@@ -5,44 +5,37 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.window.core.layout.WindowSizeClass
-import com.calculator.app.data.local.preferences.ThemeMode
-import com.calculator.app.data.local.preferences.UserPreferences
+import com.calculator.app.data.local.preferences.ThemeSettings
 import com.calculator.app.ui.calculator.CalculatorScreen
 import com.calculator.app.ui.calculator.CalculatorViewModel
 import com.calculator.app.ui.history.HistoryBottomSheet
 import com.calculator.app.ui.history.HistoryPanel
 import com.calculator.app.ui.settings.SettingsSheet
-import kotlinx.coroutines.launch
+import com.calculator.app.ui.settings.SettingsViewModel
 
 @Composable
 fun AdaptiveCalculatorLayout(
-    windowAdaptiveInfo: WindowAdaptiveInfo,
-    userPreferences: UserPreferences,
-    themeMode: ThemeMode,
-    dynamicColor: Boolean,
-    oledBlack: Boolean,
+    windowSizeClass: WindowSizeClass,
+    themeSettings: ThemeSettings,
 ) {
     val viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory)
+    val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val historyItems by viewModel.history.collectAsStateWithLifecycle()
-    val windowSizeClass = windowAdaptiveInfo.windowSizeClass
-    val scope = rememberCoroutineScope()
 
-    var showHistory by remember { mutableStateOf(false) }
-    var showSettings by remember { mutableStateOf(false) }
+    var showHistory by rememberSaveable { mutableStateOf(false) }
+    var showSettings by rememberSaveable { mutableStateOf(false) }
 
     when {
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
@@ -50,7 +43,7 @@ fun AdaptiveCalculatorLayout(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
-                    .systemBarsPadding(),
+                    .safeDrawingPadding(),
             ) {
                 HistoryPanel(
                     historyItems = historyItems,
@@ -77,7 +70,7 @@ fun AdaptiveCalculatorLayout(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
-                    .systemBarsPadding(),
+                    .safeDrawingPadding(),
             ) {
                 CalculatorScreen(
                     viewModel = viewModel,
@@ -100,12 +93,12 @@ fun AdaptiveCalculatorLayout(
 
     if (showSettings) {
         SettingsSheet(
-            themeMode = themeMode,
-            dynamicColor = dynamicColor,
-            oledBlack = oledBlack,
-            onThemeModeChange = { scope.launch { userPreferences.setThemeMode(it) } },
-            onDynamicColorChange = { scope.launch { userPreferences.setDynamicColor(it) } },
-            onOledBlackChange = { scope.launch { userPreferences.setOledBlack(it) } },
+            themeMode = themeSettings.themeMode,
+            dynamicColor = themeSettings.dynamicColor,
+            oledBlack = themeSettings.oledBlack,
+            onThemeModeChange = settingsViewModel::setThemeMode,
+            onDynamicColorChange = settingsViewModel::setDynamicColor,
+            onOledBlackChange = settingsViewModel::setOledBlack,
             onDismiss = { showSettings = false },
         )
     }

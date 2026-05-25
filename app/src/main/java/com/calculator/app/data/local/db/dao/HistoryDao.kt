@@ -3,13 +3,18 @@ package com.calculator.app.data.local.db.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.calculator.app.data.local.db.entity.HistoryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HistoryDao {
-    @Query("SELECT * FROM calculation_history ORDER BY timestamp DESC")
-    fun observeAll(): Flow<List<HistoryEntity>>
+    /**
+     * Reads the most-recent [limit] rows. The composite index on
+     * `(timestamp DESC, id DESC)` covers this query end-to-end (no rowid lookups).
+     */
+    @Query("SELECT * FROM calculation_history ORDER BY timestamp DESC, id DESC LIMIT :limit")
+    fun observeAll(limit: Int = 100): Flow<List<HistoryEntity>>
 
     @Insert
     suspend fun insert(entry: HistoryEntity)
@@ -23,9 +28,21 @@ interface HistoryDao {
     @Query(
         """
         DELETE FROM calculation_history WHERE id NOT IN (
-            SELECT id FROM calculation_history ORDER BY timestamp DESC LIMIT :keepCount
+            SELECT id FROM calculation_history ORDER BY timestamp DESC, id DESC LIMIT :keepCount
         )
         """
     )
     suspend fun trimToSize(keepCount: Int = 100)
+
+    /**
+     * Inserts a new entry and trims the table to [keepCount] rows in a single
+     * transaction. Without this, the two operations emit two separate
+     * invalidation signals, causing the observe Flow to publish twice per
+     * `=` press and flickering the history `LazyColumn`.
+     */
+    @Transaction
+    suspend fun insertAndTrim(entry: HistoryEntity, keepCount: Int = 100) {
+        insert(entry)
+        trimToSize(keepCount)
+    }
 }

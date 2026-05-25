@@ -88,7 +88,7 @@ object ExpressionParser {
 
         for (token in postfix) {
             when (token) {
-                is Token.Number -> stack.addLast(StackVal(BigDecimal(token.value)))
+                is Token.Number -> stack.addLast(StackVal(token.decimal))
 
                 is Token.Constant -> stack.addLast(StackVal(token.value))
 
@@ -167,7 +167,7 @@ object ExpressionParser {
 
         var result = BigDecimal.ONE
         for (i in 2..intVal) {
-            result = result.multiply(BigDecimal(i))
+            result = result.multiply(BigDecimal.valueOf(i.toLong()))
         }
         return result
     }

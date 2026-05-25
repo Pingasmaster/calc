@@ -3,7 +3,14 @@ package com.calculator.app.domain.engine
 import java.math.BigDecimal
 
 sealed class Token {
-    data class Number(val value: String) : Token()
+    /**
+     * Numeric literal. `value` is the original digit string (preserved for
+     * equality and round-tripping); `decimal` is parsed once at construction
+     * so postfix evaluation doesn't re-parse the literal on every preview tick.
+     */
+    data class Number(val value: String) : Token() {
+        val decimal: BigDecimal = BigDecimal(value)
+    }
     data class Operator(val op: String, val precedence: Int, val isRightAssoc: Boolean = false) : Token()
     data class Function(val name: String) : Token()
     data class Constant(val name: String, val value: BigDecimal) : Token()
@@ -18,13 +25,25 @@ object Tokenizer {
     private val PI = BigDecimal("3.141592653589793238462643")
     private val E = BigDecimal("2.718281828459045235360287")
 
+    private const val U_TIMES = '×'  // ×
+    private const val U_DIV = '÷'    // ÷
+    private const val U_MINUS = '−'  // −
+
     fun tokenize(expression: String): List<Token> {
+        // Skip the three replace() passes (= three string allocations) when the
+        // input contains no Unicode operator glyphs — the dominant ASCII case.
+        val needsNormalize = expression.any { it == U_TIMES || it == U_DIV || it == U_MINUS }
+        val expr = if (needsNormalize) {
+            expression
+                .replace(U_TIMES, '*')
+                .replace(U_DIV, '/')
+                .replace(U_MINUS, '-')
+        } else {
+            expression
+        }
+
         val tokens = mutableListOf<Token>()
         var i = 0
-        val expr = expression
-            .replace("×", "*")
-            .replace("÷", "/")
-            .replace("−", "-")
 
         while (i < expr.length) {
             val c = expr[i]

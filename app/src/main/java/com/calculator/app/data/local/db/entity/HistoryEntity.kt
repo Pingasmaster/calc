@@ -6,7 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "calculation_history",
-    indices = [Index("timestamp")],
+    indices = [
+        Index(value = ["timestamp", "id"], orders = [Index.Order.DESC, Index.Order.DESC]),
+    ],
 )
 data class HistoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
