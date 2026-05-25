@@ -49,6 +49,8 @@ class HistoryRepositoryTest {
             entries.value = entries.value.sortedByDescending { it.timestamp }.take(keepCount)
         }
 
+        override suspend fun countRows(): Int = entries.value.size
+
         fun seed(vararg items: HistoryEntity) {
             entries.value = items.toList().sortedByDescending { it.timestamp }
             nextId = (items.maxOfOrNull { it.id } ?: 0L) + 1
@@ -71,18 +73,22 @@ class HistoryRepositoryTest {
     }
 
     @Test
-    fun `addEntry calls trimToSize with 100`() = runTest {
+    fun `addEntry does not trim when under cap`() = runTest {
         repo.addEntry("1+1", "2")
-        assertEquals(listOf(100), dao.trimCalls)
+        // countRows() == 1 after the insert, well under the 100 cap, so the
+        // NOT-IN subquery DELETE must be skipped (E10 gate in HistoryDao).
+        assertTrue("expected no trim call, got ${dao.trimCalls}", dao.trimCalls.isEmpty())
     }
 
     @Test
-    fun `addEntry triggers trimToSize on every insert`() = runTest {
-        repo.addEntry("1", "1")
-        repo.addEntry("2", "2")
-        repo.addEntry("3", "3")
-        assertEquals(3, dao.insertCount)
-        assertEquals(listOf(100, 100, 100), dao.trimCalls)
+    fun `addEntry trims once the table grows past keepCount`() = runTest {
+        // Pre-seed to keepCount (100) so the next insert pushes us to 101 rows.
+        val seedItems = (1..100).map {
+            HistoryEntity(id = it.toLong(), expression = "$it", result = "$it", timestamp = it.toLong())
+        }
+        dao.seed(*seedItems.toTypedArray())
+        repo.addEntry("new", "value")
+        assertEquals(listOf(100), dao.trimCalls)
     }
 
     @Test

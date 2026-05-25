@@ -31,7 +31,8 @@ class CalculatorEngine {
         return when {
             num.scale() <= 0 -> {
                 val intStr = num.toBigInteger().toString()
-                if (intStr.replace("-", "").length > MAX_INTEGER_DIGITS) {
+                val absLen = if (intStr.isNotEmpty() && intStr[0] == '-') intStr.length - 1 else intStr.length
+                if (absLen > MAX_INTEGER_DIGITS) {
                     num = num.round(java.math.MathContext(MAX_DISPLAY_DECIMAL_PLACES + 1))
                         .stripTrailingZeros()
                     num.toString()

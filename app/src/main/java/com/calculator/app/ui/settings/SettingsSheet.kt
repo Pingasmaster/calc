@@ -33,9 +33,11 @@ fun SettingsSheet(
     themeMode: ThemeMode,
     dynamicColor: Boolean,
     oledBlack: Boolean,
+    hapticsEnabled: Boolean,
     onThemeModeChange: (ThemeMode) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
     onOledBlackChange: (Boolean) -> Unit,
+    onHapticsEnabledChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
@@ -150,6 +152,37 @@ fun SettingsSheet(
                 Switch(
                     checked = oledBlack,
                     onCheckedChange = onOledBlackChange,
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Haptic feedback toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_dark_mode),
+                    contentDescription = stringResource(R.string.settings_haptics),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.settings_haptics),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_haptics_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = hapticsEnabled,
+                    onCheckedChange = onHapticsEnabledChange,
                 )
             }
         }

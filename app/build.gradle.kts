@@ -13,8 +13,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 33
         targetSdk = 37
-        versionCode = 47
-        versionName = "1.0.46"
+        versionCode = 48
+        versionName = "1.0.47"
     }
 
     buildTypes {
@@ -83,6 +83,10 @@ android {
         checkReleaseBuilds = true
         abortOnError = true
         warningsAsErrors = false
+        // We intentionally ship the adaptive launcher icon at only xxhdpi+xxxhdpi
+        // (minSdk=33 universally supports adaptive icons; lower-density rasters
+        // were dead weight). Don't flag the missing folders.
+        disable += "IconMissingDensityFolder"
     }
 
     testOptions {

@@ -31,6 +31,10 @@ class SettingsViewModel(
         viewModelScope.launch { userPreferences.setOledBlack(enabled) }
     }
 
+    fun setHapticsEnabled(enabled: Boolean) {
+        viewModelScope.launch { userPreferences.setHapticsEnabled(enabled) }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

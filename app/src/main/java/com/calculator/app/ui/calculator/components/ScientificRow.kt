@@ -23,6 +23,7 @@ fun ScientificRow(
     onButtonClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     onLongPressBackspace: (() -> Unit)? = null,
+    hapticsEnabled: Boolean = true,
 ) {
     BoxWithConstraints(modifier = modifier) {
         val availableWidth = maxWidth
@@ -50,6 +51,7 @@ fun ScientificRow(
                             .animateWidth(interactionSource),
                         onLongClick = if (btn.category == ButtonCategory.BACKSPACE) onLongPressBackspace else null,
                         interactionSource = interactionSource,
+                        hapticsEnabled = hapticsEnabled,
                     )
                 }
             }

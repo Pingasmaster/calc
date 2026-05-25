@@ -22,6 +22,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +44,7 @@ class CalculatorViewModel(
     private val engine: CalculatorEngine = CalculatorEngine(),
     private val previewDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val previewDebounceMs: Long = PREVIEW_DEBOUNCE_MS,
+    private val saveStateDebounceMs: Long = SAVE_STATE_DEBOUNCE_MS,
 ) : ViewModel() {
 
     companion object {
@@ -50,8 +53,20 @@ class CalculatorViewModel(
         private const val KEY_RESULT_DISPLAYED = "isResultDisplayed"
         private const val KEY_IS_ERROR = "isError"
 
-        /** Coalesce rapid typing into one engine evaluation per ~50 ms. */
-        const val PREVIEW_DEBOUNCE_MS: Long = 50L
+        /**
+         * Coalesce rapid typing into one engine evaluation per ~150 ms. Anything
+         * under ~200 ms still feels instant to the user but cuts BigDecimal
+         * evaluation rate roughly 3x vs the prior 50 ms.
+         */
+        const val PREVIEW_DEBOUNCE_MS: Long = 150L
+
+        /**
+         * SavedStateHandle is only consulted by the system at
+         * onSaveInstanceState (which we hook synchronously from
+         * [MainActivity]), so we can coalesce per-keystroke writes into one
+         * flush per quiet window. Tests pass `0L` to keep writes synchronous.
+         */
+        const val SAVE_STATE_DEBOUNCE_MS: Long = 500L
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -89,8 +104,30 @@ class CalculatorViewModel(
     // to `_state`. mapLatest cancels stale work when the user keeps typing.
     private val pendingExpression = MutableStateFlow(expressionField.text.toString())
 
+    // Ticks once per keystroke. A debounced collector batches the SavedStateHandle
+    // writes; lifecycle ON_STOP / process death bypass it via [flushSaveStateNow].
+    private val saveStateTick = MutableSharedFlow<Unit>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
     init {
         startPreviewPipeline()
+        startSaveStatePipeline()
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun startSaveStatePipeline() {
+        // saveStateDebounceMs == 0 means "no batching" — used by tests so they
+        // can assert on SavedStateHandle synchronously after a click. In that
+        // mode `saveState()` writes directly and the collector is unnecessary.
+        if (saveStateDebounceMs == 0L) return
+        viewModelScope.launch {
+            saveStateTick
+                .debounce(saveStateDebounceMs)
+                .collect { flushSaveState() }
+        }
     }
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -154,14 +191,36 @@ class CalculatorViewModel(
         }
     }
 
+    /**
+     * Fires per keystroke. The preview pipeline must see every change immediately,
+     * but the SavedStateHandle Bundle writes can wait for the next debounce window
+     * (or a lifecycle flush via [flushSaveStateNow]). See [SAVE_STATE_DEBOUNCE_MS].
+     */
     private fun saveState() {
+        publishExpression()
+        if (saveStateDebounceMs == 0L) {
+            flushSaveState()
+        } else {
+            saveStateTick.tryEmit(Unit)
+        }
+    }
+
+    /**
+     * Writes the current state into [SavedStateHandle]. Called by the debounced
+     * collector during normal operation and by [flushSaveStateNow] (which the
+     * Activity invokes from `onSaveInstanceState` / lifecycle ON_STOP).
+     */
+    private fun flushSaveState() {
         val s = _state.value
         savedStateHandle[KEY_EXPRESSION] = if (s.isResultDisplayed) s.expression else expression
         savedStateHandle[KEY_DISPLAY] = s.displayText
         savedStateHandle[KEY_RESULT_DISPLAYED] = s.isResultDisplayed
         savedStateHandle[KEY_IS_ERROR] = s.isError
-        // Publish the current expression to the preview pipeline.
-        publishExpression()
+    }
+
+    /** Lifecycle entry point: force an immediate flush, bypassing the debounce. */
+    fun flushSaveStateNow() {
+        flushSaveState()
     }
 
     fun onButtonClick(symbol: String) {
