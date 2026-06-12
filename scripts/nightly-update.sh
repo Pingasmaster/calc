@@ -49,9 +49,12 @@ echo "=================================================================="
 #       any alias line, so the alias is invisible here.
 #   (b) `--permission-mode plan` is read-only — the agent would only
 #       propose changes, never make them. Useless for an autonomous run.
+#       We substitute `bypassPermissions` so the agent can actually
+#       edit files at 02:00 without a human at the keyboard.
 #
 # We solve both by defining `mini` as a shell function that mirrors the
-# alias but drops plan mode. Keep this in sync if you change the alias.
+# alias but uses bypassPermissions. Keep this in sync if you change the
+# alias.
 # -----------------------------------------------------------------------------
 CLAUDE_BIN="/home/user/.local/bin/claude"
 CLAUDE_SETTINGS="$HOME/.claude/minimax-settings.json"
@@ -65,7 +68,10 @@ if [ ! -f "$CLAUDE_SETTINGS" ]; then
 fi
 
 mini() {
-  local -a args=( --allow-dangerously-skip-permissions )
+  local -a args=(
+    --allow-dangerously-skip-permissions
+    --permission-mode bypassPermissions
+  )
   if [ -n "$CLAUDE_SETTINGS" ]; then
     args+=( --settings "$CLAUDE_SETTINGS" )
   fi
