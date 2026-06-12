@@ -82,7 +82,9 @@ export -f mini
 
 # Belt-and-suspenders: scope the agent's tool surface so even with
 # --allow-dangerously-skip-permissions it can only touch what we expect.
-ALLOWED_TOOLS="Bash Read Edit WebFetch WebSearch"
+# Workflow + Agent are included so the agent can launch the workflow-
+# driven dep audit the user asked for (fan-out research, fan-in apply).
+ALLOWED_TOOLS="Bash Read Edit Write Workflow Agent WebFetch WebSearch"
 
 # -----------------------------------------------------------------------------
 # Acquire a separate nightly lock so two nightly runs don't trample
@@ -158,30 +160,92 @@ echo
 echo "=== Phase 1: dep research & update ==="
 set +e
 mini -p "
-You are the dependency update agent for the Android Kotlin project at $REPO_DIR.
+You are the dependency update agent for the Android Kotlin project at
+$REPO_DIR.
 
 Goal: bump the safe entries in gradle/libs.versions.toml to their latest
 stable versions. Only edit that one file.
 
-Steps:
-1. Read gradle/libs.versions.toml and list every entry under [versions].
-2. For each entry, look up the latest STABLE version from the appropriate
-   source (Maven Central for Kotlin/JetBrains, Google Maven for androidx,
-   GitHub Releases for plugins). Use WebFetch / WebSearch to query. Use a
-   research workflow if multiple entries share a constraint.
-3. Cross-check candidates against known constraints for THIS project:
-   - AGP is pinned to 9.2.x; do NOT bump it.
-   - Compose versions are pinned together (compose + material3 +
-     material3-adaptive + compose-bom); verify they move as a set or
-     none move.
-   - Detekt 2.0.0-alpha.3 and ktlint 14.2.0 are intentional; do NOT bump.
-   - Bumping a major Kotlin version requires a corresponding bump to
-     kotlin-compose and ksp; treat them as a set.
-4. For each safe bump, edit gradle/libs.versions.toml to set the new
-   version. Keep edits minimal — one version string per Edit.
-5. Exit 0 if you changed anything, exit 1 if nothing was safe to bump
-   (the rest of the script will still run a build to verify the
-   no-op case is still clean).
+MANDATORY: You MUST launch a Workflow via the Workflow tool. The
+user has explicitly asked for a workflow-driven audit. Do not do the
+research serially with WebFetch/WebSearch by yourself — that defeats
+the whole point. The Workflow tool takes a JS script inline; the
+script uses agent() and parallel() to fan out work.
+
+IMPORTANT: do NOT pass a `schema` option to agent(). The
+StructuredOutput validator has a known issue with top-level array
+schemas (it wraps responses in an object, failing the schema). Have
+each subagent return PLAIN TEXT — one finding per line, formatted
+like "lib=<name> current=<v> latest=<v> breaking=<notes or none>".
+The Apply phase parses that text.
+
+Template (adapt to this project):
+
+  export const meta = {
+    name: 'dep-update-audit',
+    description: 'Fan-out dep research, fan-in apply',
+    phases: [{title: 'Research'}, {title: 'Apply'}],
+  };
+
+  phase('Research');
+  const findings = await parallel([
+    () => agent(
+      'Read gradle/libs.versions.toml. For each [versions] entry that
+       comes from Maven Central (Kotlin, JetBrains, kotlinx,
+       coroutines, etc.), look up the latest STABLE version on Maven
+       Central via WebFetch (try
+       https://repo1.maven.org/maven2/<path-to-maven-metadata.xml>).
+       Return a plain-text list, ONE FINDING PER LINE in the exact
+       format:
+         lib=<name> current=<v> latest=<v> breaking=<notes or none>
+       Lines starting with "#" are comments. Do not return JSON.',
+      {phase: 'Research'}
+    ),
+    () => agent(
+      'Read gradle/libs.versions.toml. For each [versions] entry that
+       comes from Google Maven (androidx, material3, room, datastore,
+       activity-compose, lifecycle, etc.), look up the latest STABLE
+       version on Google Maven via WebFetch (try
+       https://dl.google.com/android/maven2/<path>/maven-metadata.xml).
+       Return a plain-text list, ONE FINDING PER LINE in the exact
+       format:
+         lib=<name> current=<v> latest=<v> breaking=<notes or none>
+       Lines starting with "#" are comments. Do not return JSON.',
+      {phase: 'Research'}
+    ),
+    () => agent(
+      'Read gradle/libs.versions.toml. For each [versions] entry that
+       comes from GitHub Releases (ktlint, detekt, compose-rules,
+       slack-lint-checks, slack-compose-lints, dependency-analysis,
+       etc.), look up the latest release on GitHub via WebFetch (the
+       GitHub Releases API endpoint for the upstream project).
+       Return a plain-text list, ONE FINDING PER LINE in the exact
+       format:
+         lib=<name> current=<v> latest=<v> breaking=<notes or none>
+       Lines starting with "#" are comments. Do not return JSON.',
+      {phase: 'Research'}
+    ),
+  ]);
+
+  phase('Apply');
+  // Parse the text findings (each agent returns a string). For each
+  // line "lib=X current=A latest=B breaking=...", decide whether the
+  // bump is safe per the project constraints below. For each safe
+  // bump, Edit gradle/libs.versions.toml (one Edit per version
+  // string). Return { bumped: [...], skipped: [{lib, reason}] }.
+
+Project constraints (apply during the Apply phase):
+- AGP is pinned to 9.2.x; do NOT bump it.
+- Compose versions are pinned together (compose + material3 +
+  material3-adaptive + compose-bom); verify they move as a set or
+  none move.
+- Detekt 2.0.0-alpha.3 and ktlint 14.2.0 are intentional; do NOT bump.
+- Bumping a major Kotlin version requires a corresponding bump to
+  kotlin-compose and ksp; treat them as a set.
+
+After the workflow returns, exit 0 if anything was bumped, exit 1 if
+nothing was safe to bump (the rest of the script will still run a build
+to verify the no-op case is still clean).
 
 Do NOT touch any other file. Do NOT commit or push. Do NOT add new
 dependencies, only bump existing ones.
@@ -227,13 +291,65 @@ Goal: get back to a green build with the MINIMUM set of changes reverted.
 That almost always means reverting a single [versions] key in
 gradle/libs.versions.toml — not editing source code.
 
-Steps:
-1. Read the most recent log under $LOG_DIR (sort by name, newest is the
-   last one). Identify the root cause from ktlint / detekt / lintRelease
-   / compile / test output.
-2. Use a research workflow if the error is ambiguous — query upstream
-   release notes / GitHub issues / stackoverflow for the offending
-   library+version.
+MANDATORY: You MUST launch a Workflow via the Workflow tool to
+diagnose the failure. The user has explicitly asked for workflow-
+driven diagnosis. Do not read the log and decide on your own — that
+defeats the whole point. The Workflow tool takes a JS script inline.
+
+IMPORTANT: do NOT pass a `schema` option to agent() (the same
+StructuredOutput array-vs-object quirk as Phase 1). Have each
+subagent return PLAIN TEXT.
+
+Template (adapt to this project):
+
+  export const meta = {
+    name: 'build-failure-diagnosis',
+    description: 'Fan-out log analysis, fan-in apply',
+    phases: [{title: 'Diagnose'}, {title: 'Apply'}],
+  };
+
+  phase('Diagnose');
+  // Three parallel reads of the most recent log under $LOG_DIR,
+  // each focused on one phase of the build:
+  //   1) ktlintCheck / detekt
+  //   2) lintRelease
+  //   3) assembleDebug+assembleRelease / testDebugUnitTest
+  // For each, return a plain-text one-line summary like:
+  //   failing_phase=<name> root_cause=<one line> offending_dep=<lib or none> evidence=<file:line or log excerpt>
+  const diagnosis = await parallel([
+    () => agent('Read the most recent log under $LOG_DIR (sort by
+                  name, newest is the last). Focus on the
+                  ktlintCheck and detekt output. If the error mentions
+                  a library+version, that is the offending_dep. Return
+                  a plain-text single line in the exact format:
+                    failing_phase=<phase> root_cause=<one line>
+                    offending_dep=<lib key in libs.versions.toml or none>
+                    evidence=<short quote or file:line>',
+                 {phase: 'Diagnose'}),
+    () => agent('Read the most recent log under $LOG_DIR. Focus on
+                  the lintRelease output. If the error mentions a
+                  library+version, that is the offending_dep. Return
+                  a plain-text single line in the same format as
+                  agent #1.',
+                 {phase: 'Diagnose'}),
+    () => agent('Read the most recent log under $LOG_DIR. Focus on
+                  assembleDebug+assembleRelease and testDebugUnitTest
+                  output. If the error mentions a library+version,
+                  that is the offending_dep. Return a plain-text
+                  single line in the same format as agent #1.',
+                 {phase: 'Diagnose'}),
+  ]);
+
+  phase('Apply');
+  // Pick the most specific diagnosis. If offending_dep is non-null
+  // and points to a single [versions] key, restore ONLY that key
+  // from $SNAP_DIR/libs.versions.toml.snapshot. If multiple keys
+  // are causally linked, restore them as a set. If the cause is
+  // unambiguously a project-source bug introduced by a dep bump,
+  // fix the minimum source to pass lint/compile and document the
+  // fix.
+
+Steps (semantic — adapt as needed):
 3. If the cause is a single dep bump, restore ONLY that one [versions]
    key in gradle/libs.versions.toml to its value from
    $SNAP_DIR/libs.versions.toml.snapshot. To do this, read both files
