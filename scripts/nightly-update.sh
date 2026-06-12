@@ -98,13 +98,46 @@ if ! flock -n 9; then
 fi
 cleanup() {
   rm -f "$SNAP_DIR/libs.versions.toml.snapshot"
+  if [ -n "${DID_STASH:-}" ]; then
+    echo "Restoring auto-stash."
+    git -C "$REPO_DIR" stash pop >/dev/null 2>&1 || echo "WARN: stash pop failed; resolve manually."
+  fi
 }
 trap cleanup EXIT
 
 # -----------------------------------------------------------------------------
+# Working-tree guard. The nightly script's job is dep updates, not
+# cleaning up after a human. If the tree is dirty, refuse to run
+# (default) or stash + restore (opt-in via DIRTY_TREE_POLICY=stash).
+# -----------------------------------------------------------------------------
+DIRTY_TREE_POLICY="${DIRTY_TREE_POLICY:-error}"
+cd "$REPO_DIR"
+if ! git diff --quiet HEAD 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+  case "$DIRTY_TREE_POLICY" in
+    error)
+      echo "Working tree is dirty (uncommitted changes or untracked files)."
+      git status --short
+      echo "Commit or stash your in-progress work before the nightly runs."
+      exit 0
+      ;;
+    stash)
+      echo "Working tree is dirty; stashing before run."
+      git stash push -u -m "nightly-update.sh auto-stash @ $(date -u +%FT%TZ)" >/dev/null
+      DID_STASH=1
+      ;;
+    ignore)
+      echo "WARN: working tree is dirty and DIRTY_TREE_POLICY=ignore."
+      ;;
+    *)
+      echo "Unknown DIRTY_TREE_POLICY=$DIRTY_TREE_POLICY (accepted: error, stash, ignore)"
+      exit 2
+      ;;
+  esac
+fi
+
+# -----------------------------------------------------------------------------
 # Sync with origin. Fast-forward only — never destroy local work.
 # -----------------------------------------------------------------------------
-cd "$REPO_DIR"
 git fetch origin
 if ! git pull --ff-only; then
   echo "Non-FF pull (local commits or diverged). Leaving for manual review."
