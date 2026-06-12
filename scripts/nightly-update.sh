@@ -85,12 +85,15 @@ export -f mini
 ALLOWED_TOOLS="Bash Read Edit WebFetch WebSearch"
 
 # -----------------------------------------------------------------------------
-# Acquire the build lock so we don't trample an in-flight build.sh.
+# Acquire a separate nightly lock so two nightly runs don't trample
+# each other. We deliberately do NOT take build.sh's .build.lock —
+# build.sh manages that itself and a single nightly run needs to call
+# build.sh many times (once per iteration of the recovery loop).
 # -----------------------------------------------------------------------------
-LOCKFILE="$REPO_DIR/.build.lock"
-exec 9>"$LOCKFILE"
+NIGHTLY_LOCK="$SNAP_DIR/nightly.lock"
+exec 9>"$NIGHTLY_LOCK"
 if ! flock -n 9; then
-  echo "Another build is already running. Exiting cleanly."
+  echo "Another nightly run is already in progress. Exiting cleanly."
   exit 0
 fi
 cleanup() {
