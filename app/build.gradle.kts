@@ -15,8 +15,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 35
         targetSdk = 37
-        versionCode = 68
-        versionName = "1.0.67"
+        versionCode = 69
+        versionName = "1.0.68"
     }
 
     buildTypes {
