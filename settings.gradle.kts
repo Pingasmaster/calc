@@ -22,3 +22,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Calculator"
 include(":app")
+include(":baselineprofile")
+include(":macrobenchmark")

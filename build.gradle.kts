@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.dependency.analysis)
+    id("androidx.baselineprofile") version "1.5.0-alpha01" apply false
 }

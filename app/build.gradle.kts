@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 android {
@@ -192,6 +193,11 @@ dependencies {
     // Splash screen API (Android 12+ system splash)
     implementation(libs.core.splashscreen)
 
+    // Profile installer: ships baseline-prof.txt + startup-prof.txt alongside
+    // the APK and applies them on first run for AOT/JIT optimization.
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
@@ -209,4 +215,13 @@ dependencies {
     detektPlugins(libs.detekt.compose)
     lintChecks(libs.lint.slack.checks)
     lintChecks(libs.lint.slack.compose)
+}
+
+// Regenerate baseline-prof.txt + startup-prof.txt on every release build,
+// keep them in source control so PRs can show the diff. The CI workflow in
+// .github/workflows/baseline-profile.yml re-runs this in a Pixel 6 API 33
+// managed device for an authoritative regeneration on push to master.
+baselineProfile {
+    automaticGenerationDuringBuild = true
+    saveInSrc = true
 }
