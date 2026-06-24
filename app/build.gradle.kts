@@ -105,9 +105,6 @@ android {
         checkReleaseBuilds = true
         explainIssues = true
         showAll = true
-        htmlReport = true
-        xmlReport = true
-        sarifReport = true
         baseline = file("lint-baseline.xml")
         lintConfig = rootProject.file("config/lint/lint.xml")
         // We intentionally ship the adaptive launcher icon at only xxhdpi+xxxhdpi
