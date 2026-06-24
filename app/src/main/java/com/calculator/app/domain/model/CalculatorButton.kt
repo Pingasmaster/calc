@@ -1,5 +1,7 @@
 package com.calculator.app.domain.model
 
+import androidx.compose.runtime.Immutable
+
 enum class ButtonCategory {
     NUMBER,
     OPERATOR,
@@ -10,6 +12,7 @@ enum class ButtonCategory {
     BACKSPACE,
 }
 
+@Immutable
 data class CalculatorButton(
     val symbol: String,
     val category: ButtonCategory,

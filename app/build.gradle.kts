@@ -15,8 +15,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 35
         targetSdk = 37
-        versionCode = 69
-        versionName = "1.0.68"
+        versionCode = 70
+        versionName = "1.0.69"
     }
 
     buildTypes {
@@ -48,6 +48,11 @@ android {
     }
 
     composeCompiler {
+        // Strong skipping treats @Stable/@Immutable-annotated classes and unannotated
+        // classes whose properties are all stable (val, String, primitives, etc.) as
+        // skippable, eliminating redundant recompositions even when the conservative
+        // stability inference would mark them unstable.
+        enableStrongSkippingMode = true
         // Generates per-class stability/skippability reports under build/compose-reports
         // when explicitly requested via -Pcompose.reports=true (kept off by default to
         // avoid extra compile time on regular builds).
@@ -196,6 +201,10 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.room.testing)
+
+    // LeakCanary: debug-only, auto-installed via AppStartup. R8 strips it
+    // from the release APK so there's zero production cost.
+    debugImplementation(libs.leakcanary.android)
 
     detektPlugins(libs.detekt.compose)
     lintChecks(libs.lint.slack.checks)
