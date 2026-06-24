@@ -41,6 +41,7 @@ fun AdaptiveCalculatorLayout(
     val onButtonClick = remember(viewModel) { viewModel::onButtonClick }
     val onLoadFromHistory = remember(viewModel) { viewModel::loadFromHistory }
     val onClearHistory = remember(viewModel) { viewModel::clearHistory }
+    val expressionField = viewModel.expressionField
 
     // Flush the debounced SavedStateHandle writes before the Activity hands the
     // outState Bundle to the system. ON_PAUSE fires before onSaveInstanceState
@@ -73,7 +74,7 @@ fun AdaptiveCalculatorLayout(
 
                 CalculatorScreen(
                     state = calcState,
-                    expressionField = viewModel.expressionField,
+                    expressionField = expressionField,
                     onButtonClick = onButtonClick,
                     onSettingsClick = { showSettings = true },
                     hapticsEnabled = themeSettings.hapticsEnabled,
@@ -93,7 +94,7 @@ fun AdaptiveCalculatorLayout(
             ) {
                 CalculatorScreen(
                     state = calcState,
-                    expressionField = viewModel.expressionField,
+                    expressionField = expressionField,
                     onButtonClick = onButtonClick,
                     onDisplayClick = { showHistory = true },
                     onSettingsClick = { showSettings = true },
