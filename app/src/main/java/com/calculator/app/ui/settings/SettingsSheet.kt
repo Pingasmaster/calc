@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.calculator.app.R
 import com.calculator.app.data.local.preferences.ThemeMode
@@ -97,14 +99,19 @@ fun SettingsSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // Dynamic color toggle
+            // Dynamic color toggle. Marking the leading icon as decorative
+            // (null contentDescription) prevents TalkBack from announcing it
+            // twice — once for the icon, once for the row text.
+            val dynamicColorDesc = stringResource(R.string.settings_dynamic_color)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) { contentDescription = dynamicColorDesc },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_palette),
-                    contentDescription = stringResource(R.string.settings_dynamic_color),
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
@@ -129,13 +136,16 @@ fun SettingsSheet(
             Spacer(Modifier.height(16.dp))
 
             // OLED black toggle
+            val oledDarkDesc = stringResource(R.string.settings_oled_dark)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) { contentDescription = oledDarkDesc },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_dark_mode),
-                    contentDescription = stringResource(R.string.settings_oled_dark),
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
@@ -160,13 +170,16 @@ fun SettingsSheet(
             Spacer(Modifier.height(16.dp))
 
             // Haptic feedback toggle
+            val hapticsDesc = stringResource(R.string.settings_haptics)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) { contentDescription = hapticsDesc },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_vibration),
-                    contentDescription = stringResource(R.string.settings_haptics),
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(16.dp))
