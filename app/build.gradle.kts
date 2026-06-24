@@ -49,11 +49,16 @@ android {
     }
 
     composeCompiler {
+        // Strong skipping is on by default in Kotlin Compose Compiler 2.3.21+
+        // (the `enableStrongSkippingMode` Property was deprecated in favor of
+        // `featureFlags`, but `featureFlags.add(StrongSkipping)` was deprecated
+        // in 2.3.21 in turn, leaving "do nothing" as the only non-deprecated
+        // way to get the default behavior). Audit reports produced via
+        // `-Pcompose.reports=true` to confirm.
         // Strong skipping treats @Stable/@Immutable-annotated classes and unannotated
         // classes whose properties are all stable (val, String, primitives, etc.) as
         // skippable, eliminating redundant recompositions even when the conservative
         // stability inference would mark them unstable.
-        enableStrongSkippingMode = true
         // Generates per-class stability/skippability reports under build/compose-reports
         // when explicitly requested via -Pcompose.reports=true (kept off by default to
         // avoid extra compile time on regular builds).
