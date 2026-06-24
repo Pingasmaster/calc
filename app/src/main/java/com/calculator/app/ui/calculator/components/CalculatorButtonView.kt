@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.calculator.app.ui.theme.buttonLarge
 import com.calculator.app.ui.theme.buttonMedium
 import com.calculator.app.ui.theme.buttonSmall
 
+@Immutable
 data class ButtonColors(val containerColor: Color, val contentColor: Color)
 
 @Composable

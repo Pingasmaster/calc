@@ -1,6 +1,7 @@
 package com.calculator.app.data.local.preferences
 
 import android.content.Context
+import androidx.compose.runtime.Immutable
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
@@ -25,6 +26,7 @@ private val Context.dataStore by preferencesDataStore(
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
+@Immutable
 data class ThemeSettings(val themeMode: ThemeMode, val dynamicColor: Boolean, val oledBlack: Boolean, val hapticsEnabled: Boolean) {
     companion object {
         val Default = ThemeSettings(
