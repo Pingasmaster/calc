@@ -56,7 +56,7 @@ android {
         // Generates per-class stability/skippability reports under build/compose-reports
         // when explicitly requested via -Pcompose.reports=true (kept off by default to
         // avoid extra compile time on regular builds).
-        if (project.findProperty("compose.reports") == "true") {
+        if (providers.gradleProperty("compose.reports").orNull == "true") {
             reportsDestination = layout.buildDirectory.dir("compose-reports")
             metricsDestination = layout.buildDirectory.dir("compose-metrics")
         }

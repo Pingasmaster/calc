@@ -25,7 +25,12 @@ jobs:
         uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e  # v6.1.0
 
       - name: Build release APK
-        run: ./gradlew assembleRelease
+        env:
+          # Gradle 9.6.0 conventions: clean parseable logs + no interactive prompts
+          # in autonomous CI runs.
+          NO_COLOR: "1"
+          GRADLE_NON_INTERACTIVE: "true"
+        run: ./gradlew --non-interactive assembleRelease
 
       - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfdaa  # v3.0.0

@@ -129,7 +129,11 @@ proxy_strip_env=(
 
 if command -v tmux >/dev/null 2>&1; then
   sess="nightly-deps-$ts"
+  # NO_COLOR=1 + GRADLE_NON_INTERACTIVE are Gradle 9.6.0 conventions: the first
+  # strips ANSI from build logs (cleaner for AI/agent consumption), the second
+  # prevents interactive prompts from breaking autonomous runs.
   env "${proxy_strip_env[@]}" \
+    NO_COLOR=1 GRADLE_NON_INTERACTIVE=true \
     setsid tmux new-session -d -s "$sess" -x 220 -y 50 \
       "cd '$REPO' && exec '$CLAUDE_BIN' --permission-mode bypassPermissions --model '$MODEL'"
   tmux pipe-pane -t "$sess" "cat >> '$logfile'" 2>/dev/null || true
