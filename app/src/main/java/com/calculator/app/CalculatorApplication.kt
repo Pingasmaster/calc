@@ -148,6 +148,14 @@ class CalculatorApplication : Application() {
             ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN,
             ComponentCallbacks2.TRIM_MEMORY_BACKGROUND,
             -> Unit
+
+            // The remaining TRIM_MEMORY_* constants (COMPLETE, MODERATE,
+            // RUNNING_*) are intentionally no-ops: the OS handles process
+            // lifecycle for us at those levels, and our Room + DataStore
+            // caches keep enough on disk to be rehydrated cheaply. Lint
+            // wants an explicit `else` because the when is on an `@IntDef`
+            // type (SwitchIntDef); fall through it here.
+            else -> Unit
         }
     }
 }

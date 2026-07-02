@@ -6,52 +6,66 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.window.core.layout.WindowSizeClass
+import com.calculator.app.data.local.preferences.ThemeMode
 import com.calculator.app.data.local.preferences.ThemeSettings
+import com.calculator.app.domain.model.CalculatorState
+import com.calculator.app.domain.model.HistoryItem
 import com.calculator.app.ui.calculator.CalculatorScreen
-import com.calculator.app.ui.calculator.CalculatorViewModel
 import com.calculator.app.ui.history.HistoryBottomSheet
 import com.calculator.app.ui.history.HistoryPanel
 import com.calculator.app.ui.settings.SettingsSheet
-import com.calculator.app.ui.settings.SettingsViewModel
+import kotlinx.collections.immutable.ImmutableList
 
+/**
+ * Stateful screen shell. ViewModels live one level up (in MainActivity) and
+ * their state is hoisted in via plain params — children are stateless. This
+ * is the canonical "state hoisting" pattern, and the only layout that
+ * simultaneously satisfies both slack-compose-lints rules
+ * (`ComposeViewModelForwarding` + `ComposeViewModelInjection`):
+ *
+ *   * `ComposeViewModelForwarding`: no ViewModel instance ever crosses a
+ *     composable function boundary as a parameter.
+ *   * `ComposeViewModelInjection`: `viewModel()` is only ever called from
+ *     Activity/Fragment scope, never from a composable.
+ */
 @Composable
 fun AdaptiveCalculatorLayout(
     windowSizeClass: WindowSizeClass,
     themeSettings: ThemeSettings,
+    historyItems: ImmutableList<HistoryItem>,
+    calcState: CalculatorState,
+    expressionField: TextFieldState,
+    onButtonClick: (String) -> Unit,
+    onLoadFromHistory: (String) -> Unit,
+    onClearHistory: () -> Unit,
+    onFlushSaveState: () -> Unit,
+    onSetThemeMode: (ThemeMode) -> Unit,
+    onSetDynamicColor: (Boolean) -> Unit,
+    onSetOledBlack: (Boolean) -> Unit,
+    onHapticsChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CalculatorViewModel = viewModel(factory = CalculatorViewModel.Factory),
-    settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
 ) {
-    val historyItems by viewModel.history.collectAsStateWithLifecycle()
-    val calcState by viewModel.state.collectAsStateWithLifecycle()
-    val onButtonClick = remember(viewModel) { viewModel::onButtonClick }
-    val onLoadFromHistory = remember(viewModel) { viewModel::loadFromHistory }
-    val onClearHistory = remember(viewModel) { viewModel::clearHistory }
-    val expressionField = viewModel.expressionField
-
-    // Flush the debounced SavedStateHandle writes before the Activity hands the
-    // outState Bundle to the system. ON_PAUSE fires before onSaveInstanceState
-    // on Android 9+ (we're minSdk=33), so the flush lands in time.
-    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
-        viewModel.flushSaveStateNow()
-    }
-
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
+
+    // rememberUpdatedState pins a single reference for the duration of the
+    // effect, so the `LifecycleEventEffect` below doesn't get re-keyed every
+    // time the parent composable (MainActivity) recomposes and passes a fresh
+    // lambda capture.
+    val flushSaveState = rememberUpdatedState(onFlushSaveState)
 
     when {
         windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
@@ -114,16 +128,23 @@ fun AdaptiveCalculatorLayout(
         }
     }
 
+    // Flush the debounced SavedStateHandle writes before the Activity hands the
+    // outState Bundle to the system. ON_PAUSE fires before onSaveInstanceState
+    // on Android 9+ (we're minSdk=33), so the flush lands in time.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        flushSaveState.value()
+    }
+
     if (showSettings) {
         SettingsSheet(
             themeMode = themeSettings.themeMode,
             dynamicColor = themeSettings.dynamicColor,
             oledBlack = themeSettings.oledBlack,
             hapticsEnabled = themeSettings.hapticsEnabled,
-            onThemeModeChange = settingsViewModel::setThemeMode,
-            onDynamicColorChange = settingsViewModel::setDynamicColor,
-            onOledBlackChange = settingsViewModel::setOledBlack,
-            onHapticsEnabledChange = settingsViewModel::setHapticsEnabled,
+            onThemeModeChange = onSetThemeMode,
+            onDynamicColorChange = onSetDynamicColor,
+            onOledBlackChange = onSetOledBlack,
+            onHapticsEnabledChange = onHapticsChange,
             onDismiss = { showSettings = false },
         )
     }

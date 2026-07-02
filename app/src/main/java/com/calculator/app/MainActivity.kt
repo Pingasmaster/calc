@@ -7,8 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -16,9 +18,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.calculator.app.data.local.preferences.ThemeMode
 import com.calculator.app.data.local.preferences.ThemeSettings
 import com.calculator.app.ui.adaptive.AdaptiveCalculatorLayout
+import com.calculator.app.ui.calculator.CalculatorViewModel
+import com.calculator.app.ui.settings.SettingsViewModel
 import com.calculator.app.ui.theme.CalculatorTheme
 
 class MainActivity : ComponentActivity() {
+
+    // ViewModels are owned by the Activity (not by any composable), which is
+    // the only call site slack-compose-lints'
+    // `ComposeViewModelInjection` will permit. `viewModels()` here scopes them
+    // to the Activity lifecycle and gives them the same SavedStateHandle
+    // wiring they had before the hoist.
+    private val calculatorViewModel: CalculatorViewModel by viewModels(
+        factoryProducer = { CalculatorViewModel.Factory },
+    )
+    private val settingsViewModel: SettingsViewModel by viewModels(
+        factoryProducer = { SettingsViewModel.Factory },
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val app = application as CalculatorApplication
         val splash = installSplashScreen()
@@ -58,10 +75,18 @@ class MainActivity : ComponentActivity() {
                     SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                 }
             }
-            androidx.compose.runtime.DisposableEffect(barStyle) {
+            DisposableEffect(barStyle) {
                 enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
                 onDispose {}
             }
+
+            // Collect each ViewModel's state as Compose state right here at
+            // the Activity-setContent scope — not inside AdaptiveCalculatorLayout.
+            // This is the hoist point that satisfies both slack-compose-lints
+            // rules: no `viewModel()` in a composable, no ViewModel forwarded
+            // as a parameter.
+            val historyItems by calculatorViewModel.history.collectAsStateWithLifecycle()
+            val calcState by calculatorViewModel.state.collectAsStateWithLifecycle()
 
             CalculatorTheme(
                 darkTheme = isDark,
@@ -72,6 +97,17 @@ class MainActivity : ComponentActivity() {
                 AdaptiveCalculatorLayout(
                     windowSizeClass = windowAdaptiveInfo.windowSizeClass,
                     themeSettings = s,
+                    historyItems = historyItems,
+                    calcState = calcState,
+                    expressionField = calculatorViewModel.expressionField,
+                    onButtonClick = calculatorViewModel::onButtonClick,
+                    onLoadFromHistory = calculatorViewModel::loadFromHistory,
+                    onClearHistory = calculatorViewModel::clearHistory,
+                    onFlushSaveState = calculatorViewModel::flushSaveStateNow,
+                    onSetThemeMode = settingsViewModel::setThemeMode,
+                    onSetDynamicColor = settingsViewModel::setDynamicColor,
+                    onSetOledBlack = settingsViewModel::setOledBlack,
+                    onHapticsChange = settingsViewModel::setHapticsEnabled,
                 )
             }
         }

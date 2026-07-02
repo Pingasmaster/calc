@@ -1,50 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
+<issues format="6" by="lint 9.4.0-alpha02" type="baseline" client="gradle" dependencies="true" name="AGP (9.4.0-alpha02)" variant="all" version="9.4.0-alpha02">
 
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="                HistoryPanel("
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
-            line="64"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="                CalculatorScreen("
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
-            line="75"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="                CalculatorScreen("
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
-            line="95"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="                HistoryBottomSheet("
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/calculator/app/ui/adaptive/AdaptiveCalculatorLayout.kt"
-            line="107"
-            column="17"/>
-    </issue>
-
+    <!--
+        Kotlin Compose Compiler 2.4.0 is published, but the bundled KSP plugin
+        for Kotlin 2.4.x has not been released (latest is 2.3.9). Bumping
+        kotlin-compose past 2.3.21 breaks the KSP-driven Room compiler. Tracked
+        at https://github.com/google/ksp/releases — re-evaluate once KSP 2.4.x
+        lands.
+    -->
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.3.21 is available: 2.4.0"
@@ -54,17 +17,6 @@
             file="../gradle/libs.versions.toml"
             line="3"
             column="18"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `ComponentCallbacks2.TRIM_MEMORY_COMPLETE`, `ComponentCallbacks2.TRIM_MEMORY_MODERATE`, `ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL`, `ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW`, `ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE`"
-        errorLine1="        when (level) {"
-        errorLine2="        ~~~~">
-        <location
-            file="src/main/java/com/calculator/app/CalculatorApplication.kt"
-            line="147"
-            column="9"/>
     </issue>
 
 </issues>
