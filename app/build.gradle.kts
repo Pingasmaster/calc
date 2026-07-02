@@ -16,8 +16,8 @@ android {
         applicationId = "com.calculator.app"
         minSdk = 35
         targetSdk = 37
-        versionCode = 71
-        versionName = "1.0.70"
+        versionCode = 73
+        versionName = "1.0.72"
     }
 
     buildTypes {
@@ -223,7 +223,18 @@ dependencies {
 // keep them in source control so PRs can show the diff. The CI workflow in
 // .github/workflows/baseline-profile.yml re-runs this in a Pixel 6 API 33
 // managed device for an authoritative regeneration on push to master.
+//
+// Auto-generation is gated on the `baseline.profile.auto.generate` Gradle
+// property so `./build.sh` (clean + ktlintCheck + detekt + lintRelease +
+// assembleDebug + assembleRelease + testDebugUnitTest) does NOT need a
+// connected emulator — the BaselineProfileGenerator test runs as a
+// macrobenchmark on the `pixel6Api33` managed device, which only exists
+// in CI. CI opts in by passing `-Pbaseline.profile.auto.generate=true`.
+// Local devs with a device can opt in the same way.
+val autoGenerateBaselineProfile: Boolean = providers.gradleProperty("baseline.profile.auto.generate")
+    .map { it.toBoolean() }
+    .getOrElse(false)
 baselineProfile {
-    automaticGenerationDuringBuild = true
+    automaticGenerationDuringBuild = autoGenerateBaselineProfile
     saveInSrc = true
 }

@@ -53,6 +53,7 @@ jobs:
       - name: Generate Baseline + Startup Profile
         run: >-
           ./gradlew :app:assembleRelease
+          -Pbaseline.profile.auto.generate=true
           -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=baselineprofile
           -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
 

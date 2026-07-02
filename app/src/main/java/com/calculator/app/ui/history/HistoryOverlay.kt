@@ -174,17 +174,6 @@ private fun HistoryListItem(
                     style = MaterialTheme.typography.labelSmall,
                 )
             },
-            headlineContent = {
-                Text(
-                    text = item.expression,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
             supportingContent = {
                 Text(
                     text = stringResource(R.string.display_result_prefix, item.result),
@@ -198,7 +187,17 @@ private fun HistoryListItem(
             },
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = onClick),
-        )
+        ) {
+            Text(
+                text = item.expression,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 
